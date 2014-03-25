@@ -28,7 +28,7 @@ func parseTeam(url string) (int, error) {
 		return 0, errors.New("could not find country of team")
 	}
 
-	// TODO: Add team
+	// TODO: Add team and country
 	_ = title
 
 	return 1, nil

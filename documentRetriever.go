@@ -13,6 +13,18 @@ import (
 	"strings"
 )
 
+type HitRate struct {
+	Accesses int
+	Hits int
+}
+
+var hitRateLock sync.RWMutex
+var hitRate HitRate
+
+func getHitRate() HitRate {
+	return hitRate
+}
+
 var diskLock sync.RWMutex
 
 func getFromDisk(hash string) (*strings.Reader, error) {
@@ -51,6 +63,10 @@ var documentCacheLock sync.RWMutex
 var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
+	hitRateLock.Lock()
+	hitRate.Accesses += 1
+	hitRateLock.Unlock()
+	
 	bHash := md5.Sum([]byte(url))
 	hash := hex.EncodeToString(bHash[:])
 
@@ -58,6 +74,10 @@ func getDocument(url string) (*goquery.Document, error) {
 	document, ok := documentCache[hash]
 	if ok {
 		documentCacheLock.RUnlock()
+
+		hitRateLock.Lock()
+		hitRate.Hits += 1
+		hitRateLock.Unlock()
 		return document, nil
 	}
 	documentCacheLock.RUnlock()

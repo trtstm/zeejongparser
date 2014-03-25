@@ -11,6 +11,7 @@ import (
 	"os"
 	"io/ioutil"
 	"strings"
+	"log"
 )
 
 type HitRate struct {
@@ -21,7 +22,7 @@ type HitRate struct {
 var hitRateLock sync.RWMutex
 var hitRate HitRate
 
-func getHitRate() HitRate {
+func getCacheInfo() HitRate {
 	return hitRate
 }
 
@@ -86,6 +87,8 @@ func getDocument(url string) (*goquery.Document, error) {
 	if err != nil {
 		var resp *http.Response
 		for i := 0; i < 10; i++ {
+			log.Println("CATCHING: " + url)
+
 			resp, err = http.Get(url)
 			if err != nil {
 				return document, err
@@ -94,7 +97,7 @@ func getDocument(url string) (*goquery.Document, error) {
 
 			if resp.StatusCode == 200 {
 				break
-			} else if resp.StatusCode == 500 {
+			} else if resp.StatusCode / 100 == 5 {
 				time.Sleep(time.Second * 10)
 			} else {
 				return document, errors.New("response status is " + resp.Status)

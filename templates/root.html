@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<title>Zeejong parser</title>
+		<script type="text/javascript" src="/static/jquery-2.0.3.min.js"></script>
+
+		<script>
+			var cache_accesses;
+			var cache_hits;
+
+			function setCacheInfo(data) {
+				cache_accesses.innerHTML = data["Accesses"];
+				cache_hits.innerHTML = data["Hits"];
+			}
+
+			function updateCache() {
+				$.ajax({
+				dataType: "json",
+				url: "/cacheInfo",
+				success: setCacheInfo
+				});
+			}
+
+			$(document).ready(function() {
+				cache_accesses = document.getElementById("cache_access");
+				cache_hits = document.getElementById("cache_hits");
+
+				setInterval(updateCache, 5000);
+			});
+		</script>
+	</head>
+
+
+	<body>
+		<p>Cache accesses: <span id="cache_access"></span></p>
+		<p>Cache hits: <span id="cache_hits"></span></p>
+
+	</body>
+</html>

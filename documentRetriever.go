@@ -11,19 +11,20 @@ import (
 	"os"
 	"io/ioutil"
 	"strings"
-	"log"
 )
 
-type HitRate struct {
+type CacheInfo struct {
 	Accesses int
-	Hits int
+	DiskAccesses int
+	MemAccesses int
+	UrlAccesses int	
 }
 
-var hitRateLock sync.RWMutex
-var hitRate HitRate
+var cacheInfoLock sync.RWMutex
+var cacheInfo CacheInfo
 
-func getCacheInfo() HitRate {
-	return hitRate
+func getCacheInfo() CacheInfo {
+	return cacheInfo
 }
 
 var diskLock sync.RWMutex
@@ -64,9 +65,9 @@ var documentCacheLock sync.RWMutex
 var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
-	hitRateLock.Lock()
-	hitRate.Accesses += 1
-	hitRateLock.Unlock()
+	cacheInfoLock.Lock()
+	cacheInfo.Accesses += 1
+	cacheInfoLock.Unlock()
 	
 	bHash := md5.Sum([]byte(url))
 	hash := hex.EncodeToString(bHash[:])
@@ -76,9 +77,9 @@ func getDocument(url string) (*goquery.Document, error) {
 	if ok {
 		documentCacheLock.RUnlock()
 
-		hitRateLock.Lock()
-		hitRate.Hits += 1
-		hitRateLock.Unlock()
+		cacheInfoLock.Lock()
+		cacheInfo.MemAccesses += 1
+		cacheInfoLock.Unlock()
 		return document, nil
 	}
 	documentCacheLock.RUnlock()
@@ -87,8 +88,6 @@ func getDocument(url string) (*goquery.Document, error) {
 	if err != nil {
 		var resp *http.Response
 		for i := 0; i < 10; i++ {
-			log.Println("CATCHING: " + url)
-
 			resp, err = http.Get(url)
 			if err != nil {
 				return document, err
@@ -96,6 +95,9 @@ func getDocument(url string) (*goquery.Document, error) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode == 200 {
+				cacheInfoLock.Lock()
+				cacheInfo.UrlAccesses += 1
+				cacheInfoLock.Unlock()
 				break
 			} else if resp.StatusCode / 100 == 5 {
 				time.Sleep(time.Second * 10)
@@ -111,6 +113,10 @@ func getDocument(url string) (*goquery.Document, error) {
 
 		addToDisk(hash, string(contents))
 		reader = strings.NewReader(string(contents))
+	} else {
+		cacheInfoLock.Lock()
+		cacheInfo.DiskAccesses += 1
+		cacheInfoLock.Unlock()
 	}
 
 	document, err = goquery.NewDocumentFromReader(reader)

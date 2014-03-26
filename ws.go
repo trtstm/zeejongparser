@@ -24,7 +24,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 	rootTpl.Execute(w, nil)
 }
 
-func cacheInfo(w http.ResponseWriter, r *http.Request) {
+func cacheInfoHandler(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(getCacheInfo())
 	if err != nil {
 		fmt.Fprintf(w, "{}")
@@ -42,7 +42,7 @@ func startWs() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", root)
-	r.HandleFunc("/cacheInfo", cacheInfo)
+	r.HandleFunc("/cacheInfo", cacheInfoHandler)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
 	server := http.Server{Addr: address, Handler: r}

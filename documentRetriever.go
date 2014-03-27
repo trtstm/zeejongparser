@@ -11,10 +11,12 @@ import (
 	"os"
 	"io/ioutil"
 	"strings"
+	"runtime"
 )
 
 type CacheInfo struct {
 	Accesses int
+	Items int
 	DiskAccesses int
 	MemAccesses int
 	UrlAccesses int	
@@ -24,6 +26,14 @@ var cacheInfoLock sync.RWMutex
 var cacheInfo CacheInfo
 
 func getCacheInfo() CacheInfo {
+	documentCacheLock.RLock()
+	items := len(documentCache)
+	documentCacheLock.RUnlock()
+
+	cacheInfoLock.Lock()
+	cacheInfo.Items = items
+	cacheInfoLock.Unlock()
+
 	return cacheInfo
 }
 
@@ -65,6 +75,20 @@ var documentCacheLock sync.RWMutex
 var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
+	documentCacheLock.RLock()
+	if len(documentCache) > 1000 {
+		documentCacheLock.RUnlock()
+		documentCacheLock.Lock()
+		documentCache =  map[string]*goquery.Document{}
+		documentCacheLock.Unlock()
+
+		runtime.GC()
+	} else {
+		documentCacheLock.RUnlock()
+	}
+
+	
+
 	cacheInfoLock.Lock()
 	cacheInfo.Accesses += 1
 	cacheInfoLock.Unlock()

@@ -5,12 +5,14 @@
 
 		<script>
 			var cache_accesses;
+			var items;
 			var mem_hits;
 			var disk_hits;
 			var url_hits;
 
 			function setCacheInfo(data) {
 				cache_accesses.innerHTML = data["Accesses"];
+				items.innerHTML = data["Items"];
 				mem_hits.innerHTML = data["MemAccesses"];
 				disk_hits.innerHTML = data["DiskAccesses"];
 				url_hits.innerHTML = data["UrlAccesses"];
@@ -26,6 +28,7 @@
 
 			$(document).ready(function() {
 				cache_accesses = document.getElementById("cache_access");
+				items = document.getElementById("items");
 				mem_hits = document.getElementById("mem_hits");
 				disk_hits = document.getElementById("disk_hits");
 				url_hits = document.getElementById("url_hits");
@@ -38,6 +41,7 @@
 
 	<body>
 		<p>Cache accesses: <span id="cache_access"></span></p>
+		<p>Cache items: <span id="items"></span></p>
 		<p>Mem hits: <span id="mem_hits"></span></p>
 		<p>Disk hits: <span id="disk_hits"></span></p>
 		<p>Url hits: <span id="url_hits"></span></p>

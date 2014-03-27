@@ -189,7 +189,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 
 	teamsId, err := getTeamsId(d)
 	if err != nil {
-		log.Printf("could not find teams in match")
+		log.Printf("could not find teams in match: %s", url)
 		return
 	}
 

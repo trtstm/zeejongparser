@@ -33,8 +33,8 @@ func parseReferee(url string) (int, error) {
 		return 0, err
 	}
 
-	_ = country
-	id := addReferee(firstname, lastname, 0)
+	countryId := addCountry(country)
+	id := addReferee(firstname, lastname, countryId)
 
 	return id, nil
 }

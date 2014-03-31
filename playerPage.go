@@ -52,7 +52,7 @@ func parsePlayer(url string) (int, error) {
 
 	firstname := info["first name"]
 	lastname := info["last name"]
-	nationality := 0
+	nationality := addCountry(info["nationality"])
 	dateOfBirth := 0
 	height, _ := strconv.Atoi(strings.TrimFunc(info["height"], removeNonAlpha))
 	weight, _ := strconv.Atoi(strings.TrimFunc(info["weight"], removeNonAlpha))

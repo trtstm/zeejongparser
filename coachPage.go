@@ -33,8 +33,8 @@ func parseCoach(url string) (int, error) {
 		return 0, err
 	}
 
-	_ = country
-	id := addCoach(firstname, lastname, 0)
+	countryId := addCountry(country)
+	id := addCoach(firstname, lastname, countryId)
 
 	return id, nil
 }

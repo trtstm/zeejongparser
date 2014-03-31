@@ -235,11 +235,5 @@ func parseMatch(url string, competitionId, seasonId int) {
 		_ = coachId
 	}
 
-	_ = date
-
-	_ = scoreId
-
-	_ = teamsId
-
-	_ = refereeId
+	addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId)
 }

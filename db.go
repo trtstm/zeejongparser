@@ -40,23 +40,37 @@ type country struct {
 	Name string
 }
 
+type match struct {
+	Id int
+	TeamA int
+	TeamB int
+	Season int
+	Referee int
+	Date int
+	Score int
+}
+
 var db = struct {
 	playersLock sync.RWMutex
-	players     map[string]player
+	Players     map[string]player
 
 	refereesLock sync.RWMutex
-	referees     map[string]referee
+	Referees     map[string]referee
 
 	coachesLock sync.RWMutex
-	coaches     map[string]coach
+	Coaches     map[string]coach
 
 	countriesLock sync.RWMutex
-	countries     map[string]country
+	Countries     map[string]country
+
+	matchesLock sync.RWMutex
+	Matches     map[string]match
 }{
-	players: map[string]player{},
-	referees: map[string]referee{},
-	coaches: map[string]coach{},
-	countries: map[string]country{},
+	Players: map[string]player{},
+	Referees: map[string]referee{},
+	Coaches: map[string]coach{},
+	Countries: map[string]country{},
+	Matches: map[string]match{},
 }
 
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
@@ -76,15 +90,15 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 	hash := hex.EncodeToString(checksum[:])
 
 	db.playersLock.RLock()
-	if player, ok := db.players[hash]; ok {
+	if player, ok := db.Players[hash]; ok {
 		db.playersLock.RUnlock()
 		return player.Id
 	}
 	db.playersLock.RUnlock()
 
 	db.playersLock.Lock()
-	id := len(db.players)
-	db.players[hash] = player{Id: id, Firstname: firstname,
+	id := len(db.Players)
+	db.Players[hash] = player{Id: id, Firstname: firstname,
 		Lastname: lastname, Country: countryId, DateOfBirth: dateOfBirth,
 		Height: height, Weight: weight, Position: position}
 	db.playersLock.Unlock()
@@ -106,15 +120,15 @@ func addReferee(firstname, lastname string, countryId int) int {
 	hash := hex.EncodeToString(checksum[:])
 
 	db.refereesLock.RLock()
-	if referee, ok := db.referees[hash]; ok {
+	if referee, ok := db.Referees[hash]; ok {
 		db.refereesLock.RUnlock()
 		return referee.Id
 	}
 	db.refereesLock.RUnlock()
 
 	db.refereesLock.Lock()
-	id := len(db.referees)
-	db.referees[hash] = referee{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
+	id := len(db.Referees)
+	db.Referees[hash] = referee{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 	db.refereesLock.Unlock()
 
 	return id
@@ -134,15 +148,15 @@ func addCoach(firstname, lastname string, countryId int) int {
 	hash := hex.EncodeToString(checksum[:])
 
 	db.coachesLock.RLock()
-	if coach, ok := db.coaches[hash]; ok {
+	if coach, ok := db.Coaches[hash]; ok {
 		db.coachesLock.RUnlock()
 		return coach.Id
 	}
 	db.coachesLock.RUnlock()
 
 	db.coachesLock.Lock()
-	id := len(db.coaches)
-	db.coaches[hash] = coach{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
+	id := len(db.Coaches)
+	db.Coaches[hash] = coach{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 	db.coachesLock.Unlock()
 
 	return id
@@ -157,16 +171,46 @@ func addCountry(name string) int {
 	hash := hex.EncodeToString(checksum[:])
 
 	db.countriesLock.RLock()
-	if country, ok := db.countries[hash]; ok {
+	if country, ok := db.Countries[hash]; ok {
 		db.countriesLock.RUnlock()
 		return country.Id
 	}
 	db.countriesLock.RUnlock()
 
 	db.countriesLock.Lock()
-	id := len(db.countries)
-	db.countries[hash] = country{Id: id, Name: name}
+	id := len(db.Countries)
+	db.Countries[hash] = country{Id: id, Name: name}
 	db.countriesLock.Unlock()
 
 	return id
 }
+
+func addMatch(teamA, teamB, season, referee, date, score int) int {
+	encoding := base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(teamA)))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(teamB)))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(season)))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(date)))
+
+	checksum := sha256.Sum256([]byte(encoding))
+	hash := hex.EncodeToString(checksum[:])
+
+	db.matchesLock.RLock()
+	if match, ok := db.Matches[hash]; ok {
+		db.matchesLock.RUnlock()
+		return match.Id
+	}
+	db.matchesLock.RUnlock()
+
+	db.matchesLock.Lock()
+	id := len(db.Matches)
+	db.Matches[hash] = match{Id: id, TeamA: teamA, TeamB: teamB, Season: season,
+							Referee: referee, Date: date, Score: score}
+
+	db.matchesLock.Unlock()
+
+	return id
+}
+

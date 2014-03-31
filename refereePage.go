@@ -33,7 +33,6 @@ func parseReferee(url string) (int, error) {
 		return 0, err
 	}
 
-
 	// TODO: Add referee
 
 	_ = firstname

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"net/http"
-	"html/template"
-	"os"
-	"log"
-	"fmt"
 	"encoding/json"
+	"fmt"
+	"github.com/gorilla/mux"
+	"html/template"
+	"log"
+	"net/http"
+	"os"
 )
 
 var rootTpl *template.Template

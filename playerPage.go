@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"github.com/PuerkitoBio/goquery"
-	"strings"
+	"log"
 	"strconv"
+	"strings"
 )
 
 func removeNonAlpha(r rune) bool {
@@ -21,37 +21,35 @@ func parsePlayer(url string) (int, error) {
 		log.Printf("could not parse referee %s: %s", url, err)
 		return 0, err
 	}
-		
-	
+
 	//Info contains the attributes of the player
 	//e.g. info['Position'] = "Defender"
 	info := map[string]string{}
-	
-	
+
 	d.Find(".content .first dl").Children().EachWithBreak(func(i int, s *goquery.Selection) bool {
-		
+
 		//We only check the even elements (= dd elements)
-		if(i % 2 == 0) {
-		
+		if i%2 == 0 {
+
 			key := s.Text()
 			key = strings.ToLower(strings.TrimSpace(key))
 
 			valueSelection := s.Next()
-			
+
 			//Check if the given dd element exists for this dt element
-			if(valueSelection.Length() < 1) {
+			if valueSelection.Length() < 1 {
 				log.Printf("Could not find metadata for player (unmatching dt/dd) %s\n", url)
-				return false;
+				return false
 			}
-			
+
 			value := valueSelection.Text()
 			info[key] = value
-			
+
 		}
-		
-		return true;
+
+		return true
 	})
-	
+
 	firstname := info["first name"]
 	lastname := info["last name"]
 	nationality := 0
@@ -61,6 +59,6 @@ func parsePlayer(url string) (int, error) {
 	position := info["position"]
 
 	id := addPlayer(firstname, lastname, nationality, dateOfBirth, height, weight, position)
-	
+
 	return id, nil
 }

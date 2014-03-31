@@ -3,7 +3,17 @@ package main
 import (
 	"log"
 	"github.com/PuerkitoBio/goquery"
+	"strings"
+	"strconv"
 )
+
+func removeNonAlpha(r rune) bool {
+	if r >= '0' && r <= '9' {
+		return false
+	}
+
+	return true
+}
 
 func parsePlayer(url string) (int, error) {
 	d, err := getDocument(url)
@@ -24,6 +34,8 @@ func parsePlayer(url string) (int, error) {
 		if(i % 2 == 0) {
 		
 			key := s.Text()
+			key = strings.ToLower(strings.TrimSpace(key))
+
 			valueSelection := s.Next()
 			
 			//Check if the given dd element exists for this dt element
@@ -40,8 +52,15 @@ func parsePlayer(url string) (int, error) {
 		return true;
 	})
 	
+	firstname := info["first name"]
+	lastname := info["last name"]
+	nationality := 0
+	dateOfBirth := 0
+	height, _ := strconv.Atoi(strings.TrimFunc(info["height"], removeNonAlpha))
+	weight, _ := strconv.Atoi(strings.TrimFunc(info["weight"], removeNonAlpha))
+	position := info["position"]
+
+	id := addPlayer(firstname, lastname, nationality, dateOfBirth, height, weight, position)
 	
-	_ = info
-	
-	return 1, nil
+	return id, nil
 }

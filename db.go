@@ -187,7 +187,7 @@ func getHash(params ...interface{}) string {
 				encoding += ":"
 
 			case string:
-				encoding += base32.StdEncoding.EncodeToString([]byte(strings.ToLower(param.(string))))
+				encoding += base32.StdEncoding.EncodeToString([]byte(strings.TrimSpace(strings.ToLower(param.(string)))))
 				encoding += ":"
 		}
 	}

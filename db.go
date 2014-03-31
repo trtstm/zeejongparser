@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 	"encoding/hex"
-
 	"strconv"
 	"strings"
 	"sync"
@@ -78,16 +77,7 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 	lastname = strings.TrimSpace(lastname)
 	position = strings.TrimSpace(position)
 
-	encoding := base32.StdEncoding.EncodeToString([]byte(firstname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(lastname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(countryId)))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(dateOfBirth)))
-
-	checksum := sha256.Sum256([]byte(encoding))
-	hash := hex.EncodeToString(checksum[:])
+	hash := getHash(firstname, lastname, countryId, dateOfBirth)
 
 	db.playersLock.RLock()
 	if player, ok := db.Players[hash]; ok {
@@ -110,14 +100,7 @@ func addReferee(firstname, lastname string, countryId int) int {
 	firstname = strings.TrimSpace(firstname)
 	lastname = strings.TrimSpace(lastname)
 
-	encoding := base32.StdEncoding.EncodeToString([]byte(firstname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(lastname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(countryId)))
-
-	checksum := sha256.Sum256([]byte(encoding))
-	hash := hex.EncodeToString(checksum[:])
+	hash := getHash(firstname, lastname, countryId)
 
 	db.refereesLock.RLock()
 	if referee, ok := db.Referees[hash]; ok {
@@ -138,14 +121,7 @@ func addCoach(firstname, lastname string, countryId int) int {
 	firstname = strings.TrimSpace(firstname)
 	lastname = strings.TrimSpace(lastname)
 
-	encoding := base32.StdEncoding.EncodeToString([]byte(firstname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(lastname))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(countryId)))
-
-	checksum := sha256.Sum256([]byte(encoding))
-	hash := hex.EncodeToString(checksum[:])
+	hash := getHash(firstname, lastname, countryId)
 
 	db.coachesLock.RLock()
 	if coach, ok := db.Coaches[hash]; ok {
@@ -165,10 +141,7 @@ func addCoach(firstname, lastname string, countryId int) int {
 func addCountry(name string) int {
 	name = strings.TrimSpace(name)
 
-	encoding := base32.StdEncoding.EncodeToString([]byte(strings.ToLower(name)))
-
-	checksum := sha256.Sum256([]byte(encoding))
-	hash := hex.EncodeToString(checksum[:])
+	hash := getHash(name)
 
 	db.countriesLock.RLock()
 	if country, ok := db.Countries[hash]; ok {
@@ -186,16 +159,7 @@ func addCountry(name string) int {
 }
 
 func addMatch(teamA, teamB, season, referee, date, score int) int {
-	encoding := base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(teamA)))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(teamB)))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(season)))
-	encoding += ":"
-	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(date)))
-
-	checksum := sha256.Sum256([]byte(encoding))
-	hash := hex.EncodeToString(checksum[:])
+	hash := getHash(teamA, teamB, season, date)
 
 	db.matchesLock.RLock()
 	if match, ok := db.Matches[hash]; ok {
@@ -212,5 +176,24 @@ func addMatch(teamA, teamB, season, referee, date, score int) int {
 	db.matchesLock.Unlock()
 
 	return id
+}
+
+func getHash(params ...interface{}) string {
+	encoding := ""
+	for _, param := range params {
+		switch param.(type) {
+			case int:
+				encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(param.(int))))
+				encoding += ":"
+
+			case string:
+				encoding += base32.StdEncoding.EncodeToString([]byte(strings.ToLower(param.(string))))
+				encoding += ":"
+		}
+	}
+
+	checksum := sha256.Sum256([]byte(encoding))
+	hash := hex.EncodeToString(checksum[:])
+	return hash
 }
 

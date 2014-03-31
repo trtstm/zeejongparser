@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 	"encoding/hex"
-	"log"
+
 	"strconv"
 	"strings"
 	"sync"
@@ -21,11 +21,33 @@ type player struct {
 	Position    string
 }
 
+type referee struct {
+	Id          int
+	Firstname   string
+	Lastname    string
+	Country     int
+}
+
+type coach struct {
+	Id          int
+	Firstname   string
+	Lastname    string
+	Country     int
+}
+
 var db = struct {
 	playersLock sync.RWMutex
 	players     map[string]player
+
+	refereesLock sync.RWMutex
+	referees     map[string]referee
+
+	coachesLock sync.RWMutex
+	coaches     map[string]coach
 }{
 	players: map[string]player{},
+	referees: map[string]referee{},
+	coaches: map[string]coach{},
 }
 
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
@@ -56,8 +78,63 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 	db.players[hash] = player{Id: id, Firstname: firstname,
 		Lastname: lastname, Country: countryId, DateOfBirth: dateOfBirth,
 		Height: height, Weight: weight, Position: position}
-	log.Println(db.players[hash])
 	db.playersLock.Unlock()
+
+	return id
+}
+
+func addReferee(firstname, lastname string, countryId int) int {
+	firstname = strings.TrimSpace(firstname)
+	lastname = strings.TrimSpace(lastname)
+
+	encoding := base32.StdEncoding.EncodeToString([]byte(firstname))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(lastname))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(countryId)))
+
+	checksum := sha256.Sum256([]byte(encoding))
+	hash := hex.EncodeToString(checksum[:])
+
+	db.refereesLock.RLock()
+	if referee, ok := db.referees[hash]; ok {
+		db.refereesLock.RUnlock()
+		return referee.Id
+	}
+	db.refereesLock.RUnlock()
+
+	db.refereesLock.Lock()
+	id := len(db.referees)
+	db.referees[hash] = referee{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
+	db.refereesLock.Unlock()
+
+	return id
+}
+
+func addCoach(firstname, lastname string, countryId int) int {
+	firstname = strings.TrimSpace(firstname)
+	lastname = strings.TrimSpace(lastname)
+
+	encoding := base32.StdEncoding.EncodeToString([]byte(firstname))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(lastname))
+	encoding += ":"
+	encoding += base32.StdEncoding.EncodeToString([]byte(strconv.Itoa(countryId)))
+
+	checksum := sha256.Sum256([]byte(encoding))
+	hash := hex.EncodeToString(checksum[:])
+
+	db.coachesLock.RLock()
+	if coach, ok := db.coaches[hash]; ok {
+		db.coachesLock.RUnlock()
+		return coach.Id
+	}
+	db.coachesLock.RUnlock()
+
+	db.coachesLock.Lock()
+	id := len(db.coaches)
+	db.coaches[hash] = coach{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
+	db.coachesLock.Unlock()
 
 	return id
 }

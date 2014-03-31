@@ -4,10 +4,10 @@ import (
 	"log"
 )
 
-func parseReferee(url string) (int, error) {
+func parseCoach(url string) (int, error) {
 	d, err := getDocument(url)
 	if err != nil {
-		log.Printf("could not parse referee %s: %s", url, err)
+		log.Printf("could not parse coach %s: %s", url, err)
 		return 0, err
 	}
 
@@ -15,26 +15,26 @@ func parseReferee(url string) (int, error) {
 
 	firstname, err := info.Html()
 	if err != nil {
-		log.Printf("Could not get firstname for referee %s\n", url)
+		log.Printf("Could not get firstname for coach %s\n", url)
 		return 0, err
 	}
 
 	info = info.Next().Next()
 	lastname, err := info.Html()
 	if err != nil {
-		log.Printf("Could not get lastname for referee %s\n", url)
+		log.Printf("Could not get lastname for coach %s\n", url)
 		return 0, err
 	}
 
 	info = info.Next().Next()
 	country, err := info.Html()
 	if err != nil {
-		log.Printf("Could not get country for referee %s\n", url)
+		log.Printf("Could not get country for coach %s\n", url)
 		return 0, err
 	}
 
 	_ = country
-	id := addReferee(firstname, lastname, 0)
+	id := addCoach(firstname, lastname, 0)
 
 	return id, nil
 }

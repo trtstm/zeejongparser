@@ -224,9 +224,15 @@ func parseMatch(url string, competitionId, seasonId int) {
 	}
 
 	for _, c := range getCoaches(d) {
-		// TODO: Parse coach, get the id and add coach to this match
+		coachId, err := parseCoach(BASE + c.Url)
+		if err != nil {
+			log.Printf("could not find coach in match")
+			continue
+		}
 
-		_ = c
+		
+		// TODO: Add coach to coaches team.
+		_ = coachId
 	}
 
 	_ = date

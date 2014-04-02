@@ -180,6 +180,60 @@ func getCoaches(d *goquery.Document) []Coach {
 	return coaches
 }
 
+
+
+type Goal struct {
+	Time int64
+	PlayerUrl string
+	MatchId int
+}
+
+
+func parseGoals(d *goquery.Document, matchId int) {
+	
+	d.Find(".block_match_goals-wrapper .event").EachWithBreak(func(i int, s *goquery.Selection) bool {
+	
+		goal := Goal{}
+		goal.MatchId = matchId
+	
+		//Find the time of the goal
+		rawTime := strings.Split(s.Find(".minute").Text(), "+")
+		rawTime[0] = strings.TrimSuffix(rawTime[0], "'")
+		
+		var time int64 = 0
+		
+		for _,item := range rawTime {
+			num, err := strconv.ParseInt(item, 10, 16)
+			
+			if err != nil {
+				return false
+			}
+			
+			time += num
+		}
+		
+		goal.Time = time;
+
+		
+		
+		
+		//Find the player url for the goal
+		//TODO handle error
+		goal.PlayerUrl,_ = s.Find("a").Attr("href")
+		goal.PlayerUrl = BASE + goal.PlayerUrl
+		
+		
+		
+		//TODO add the goal to the database
+		
+		return true
+		
+	})
+	
+}
+
+
+
 func parseMatch(url string, competitionId, seasonId int) {
 	d, err := getDocument(url)
 	if err != nil {
@@ -229,6 +283,10 @@ func parseMatch(url string, competitionId, seasonId int) {
 
 		_ = c
 	}
+	
+	
+	//Parse the goals
+	parseGoals(d, 1)
 	
 	_ = date
 

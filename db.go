@@ -76,6 +76,12 @@ type team struct {
 	CountryId int
 }
 
+type season struct {
+	Id int
+	Name string
+	CompetitionId int
+}
+
 var db = struct {
 	playersLock sync.RWMutex
 	Players     map[string]player
@@ -103,6 +109,9 @@ var db = struct {
 
 	teamsLock sync.RWMutex
 	Teams     map[string]team
+
+	seasonsLock sync.RWMutex
+	Seasons     map[string]season
 }{
 	Players: map[string]player{},
 	Referees: map[string]referee{},
@@ -112,6 +121,8 @@ var db = struct {
 	Scores: map[string]score{},
 	PlaysMatchInTeams: map[string]playsMatchInTeam{},
 	Coacheses: map[string]coacheses{},
+	Teams: map[string]team{},
+	Seasons: map[string]season{},
 }
 
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
@@ -293,6 +304,25 @@ func addTeam(name string, countryId int) int {
 	db.Teams[hash] = team{Id: id, Name: name, CountryId: countryId}
 
 	db.teamsLock.Unlock()
+
+	return id
+}
+
+func addSeason(name string, competitionId int) int {
+	hash := getHash(name, competitionId)
+
+	db.seasonsLock.RLock()
+	if season, ok := db.Seasons[hash]; ok {
+		db.seasonsLock.RUnlock()
+		return season.Id
+	}
+	db.seasonsLock.RUnlock()
+
+	db.seasonsLock.Lock()
+	id := len(db.Seasons)
+	db.Seasons[hash] = season{Id: id, Name: name, CompetitionId: competitionId}
+
+	db.seasonsLock.Unlock()
 
 	return id
 }

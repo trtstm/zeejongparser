@@ -34,16 +34,14 @@ func getSubSeasons(d *goquery.Document) []string {
 	return urls
 }
 
-func parseSeason(title, url string, competitionId int) {
+func parseSeason(name, url string, competitionId int) {
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse season %s: %s", url, err)
 		return
 	}
 
-	// TODO: Add season
-	seasonId := 1
-	_ = seasonId
+	seasonId := addSeason(name, competitionId)
 
 	for _, suburl := range getSubSeasons(d) {
 		subd, err := getDocument(BASE + suburl)

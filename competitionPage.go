@@ -37,10 +37,7 @@ func parseCompetition(url string) {
 	}
 
 	competition := h1.Children().Get(0).NextSibling.Data
-	_ = competition
-
-	// TODO: Add competition
-	competitionId := 1
+	competitionId := addCompetition(competition)
 
 	seasons := getSeasons(d)
 	for title, url := range seasons {

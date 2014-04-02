@@ -59,7 +59,7 @@ func parseSeason(title, url string, competitionId int) {
 				return
 			}
 
-			parseMatch(BASE + url, competitionId, seasonId)
+			parseMatch(BASE+url, competitionId, seasonId)
 		})
 	}
 }

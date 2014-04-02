@@ -1,11 +1,11 @@
 package main
 
 import (
+	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"log"
-	"strings"
-	"errors"
 	"strconv"
+	"strings"
 )
 
 func getTeamsId(d *goquery.Document) ([2]int, error) {
@@ -98,7 +98,7 @@ func getDate(d *goquery.Document) (int, error) {
 	if !found {
 		return 0, errors.New("did not find date")
 	}
-	
+
 	return date, nil
 }
 
@@ -117,7 +117,7 @@ func getReferee(d *goquery.Document) (int, error) {
 }
 
 type Player struct {
-	Url string
+	Url         string
 	Shirtnumber int
 }
 
@@ -278,10 +278,15 @@ func parseMatch(url string, competitionId, seasonId int) {
 	}
 
 	for _, c := range getCoaches(d) {
-		// TODO: Parse coach, get the id and add coach to this match
+		coachId, err := parseCoach(BASE + c.Url)
+		if err != nil {
+			log.Printf("could not find coach in match")
+			continue
+		}
 
-
-		_ = c
+		
+		// TODO: Add coach to coaches team.
+		_ = coachId
 	}
 	
 	
@@ -293,6 +298,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 	_ = scoreId
 
 	_ = teamsId
+	
 
-	_ = refereeId
+	addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId)
 }

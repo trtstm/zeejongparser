@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
-	"github.com/PuerkitoBio/goquery"
 	"errors"
+	"github.com/PuerkitoBio/goquery"
+	"log"
 )
 
 func parseTeam(url string) (int, error) {

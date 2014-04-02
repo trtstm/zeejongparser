@@ -1,25 +1,25 @@
 package main
 
 import (
-	"github.com/PuerkitoBio/goquery"
-	"sync"
-	"encoding/hex"
 	"crypto/md5"
-	"net/http"
-	"time"
+	"encoding/hex"
 	"errors"
-	"os"
+	"github.com/PuerkitoBio/goquery"
 	"io/ioutil"
-	"strings"
+	"net/http"
+	"os"
 	"runtime"
+	"strings"
+	"sync"
+	"time"
 )
 
 type CacheInfo struct {
-	Accesses int
-	Items int
+	Accesses     int
+	Items        int
 	DiskAccesses int
-	MemAccesses int
-	UrlAccesses int	
+	MemAccesses  int
+	UrlAccesses  int
 }
 
 var cacheInfoLock sync.RWMutex
@@ -63,7 +63,7 @@ func addToDisk(hash, contents string) error {
 		return errors.New(hash + " is already in cache")
 	}
 
-	err := ioutil.WriteFile("cache/" + hash + ".html", []byte(contents), 0755)
+	err := ioutil.WriteFile("cache/"+hash+".html", []byte(contents), 0755)
 	if err != nil {
 		return errors.New("could not write to cache " + hash)
 	}
@@ -79,7 +79,7 @@ func getDocument(url string) (*goquery.Document, error) {
 	if len(documentCache) > 1000 {
 		documentCacheLock.RUnlock()
 		documentCacheLock.Lock()
-		documentCache =  map[string]*goquery.Document{}
+		documentCache = map[string]*goquery.Document{}
 		documentCacheLock.Unlock()
 
 		runtime.GC()
@@ -87,12 +87,10 @@ func getDocument(url string) (*goquery.Document, error) {
 		documentCacheLock.RUnlock()
 	}
 
-	
-
 	cacheInfoLock.Lock()
 	cacheInfo.Accesses += 1
 	cacheInfoLock.Unlock()
-	
+
 	bHash := md5.Sum([]byte(url))
 	hash := hex.EncodeToString(bHash[:])
 
@@ -123,7 +121,7 @@ func getDocument(url string) (*goquery.Document, error) {
 				cacheInfo.UrlAccesses += 1
 				cacheInfoLock.Unlock()
 				break
-			} else if resp.StatusCode / 100 == 5 {
+			} else if resp.StatusCode/100 == 5 {
 				time.Sleep(time.Second * 10)
 			} else {
 				return document, errors.New("response status is " + resp.Status)

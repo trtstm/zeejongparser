@@ -44,7 +44,7 @@ func parseCompetition(url string) {
 
 	seasons := getSeasons(d)
 	for title, url := range seasons {
-		parseSeason(title, BASE + url, competitionId)
+		parseSeason(title, BASE+url, competitionId)
 	}
 
 }

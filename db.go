@@ -134,6 +134,45 @@ var db = struct {
 	Competitions: map[string]competition{},
 }
 
+func getDbSize() map[string]int {
+	db.playersLock.Lock()
+	defer db.playersLock.Unlock()
+	db.refereesLock.Lock()
+	defer db.refereesLock.Unlock()
+	db.coachesLock.Lock()
+	defer db.coachesLock.Unlock()
+	db.countriesLock.Lock()
+	defer db.countriesLock.Unlock()
+	db.matchesLock.Lock()
+	defer db.matchesLock.Unlock()
+	db.scoresLock.Lock()
+	defer db.scoresLock.Unlock()
+	db.playsMatchInTeamsLock.Lock()
+	defer db.playsMatchInTeamsLock.Unlock()
+	db.coachesesLock.Lock()
+	defer db.coachesesLock.Unlock()
+	db.teamsLock.Lock()
+	defer db.teamsLock.Unlock()
+	db.seasonsLock.Lock()
+	defer db.seasonsLock.Unlock()
+	db.competitionsLock.Lock()
+	defer db.competitionsLock.Unlock()
+
+	return map[string]int {
+		"Players": len(db.Players),
+		"Referees": len(db.Referees),
+		"Coaches": len(db.Coaches),
+		"Countries": len(db.Countries),
+		"Matches": len(db.Matches),
+		"Scores": len(db.Scores),
+		"PlaysMatchInTeam": len(db.PlaysMatchInTeams),
+		"Coacheses": len(db.Coacheses),
+		"Teams": len(db.Teams),
+		"Seasons": len(db.Seasons),
+		"Competitions": len(db.Competitions),
+	}
+}
+
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
 	firstname = strings.TrimSpace(firstname)
 	lastname = strings.TrimSpace(lastname)

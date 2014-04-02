@@ -34,6 +34,16 @@ func cacheInfoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(json))
 }
 
+func dbInfoHandler(w http.ResponseWriter, r *http.Request) {
+	json, err := json.Marshal(getDbSize())
+	if err != nil {
+		fmt.Fprintf(w, "{}")
+		return
+	}
+
+	fmt.Fprintf(w, string(json))
+}
+
 func startWs() {
 	address := ":8080"
 	if len(os.Args) == 2 {
@@ -43,6 +53,7 @@ func startWs() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", root)
 	r.HandleFunc("/cacheInfo", cacheInfoHandler)
+	r.HandleFunc("/dbInfo", dbInfoHandler)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
 	server := http.Server{Addr: address, Handler: r}

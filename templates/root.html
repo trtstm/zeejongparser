@@ -9,6 +9,7 @@
 			var mem_hits;
 			var disk_hits;
 			var url_hits;
+			var db;
 
 			function setCacheInfo(data) {
 				cache_accesses.innerHTML = data["Accesses"];
@@ -16,6 +17,13 @@
 				mem_hits.innerHTML = data["MemAccesses"];
 				disk_hits.innerHTML = data["DiskAccesses"];
 				url_hits.innerHTML = data["UrlAccesses"];
+			}
+
+			function setDbInfo(data) {
+				db.innerHTML = "";
+				for(var key in data) {
+					db.innerHTML += key + " = " + data[key] + "\n"
+				}				
 			}
 
 			function updateCache() {
@@ -26,14 +34,24 @@
 				});
 			}
 
+			function updateDb() {
+				$.ajax({
+				dataType: "json",
+				url: "/dbInfo",
+				success: setDbInfo
+				});
+			}
+
 			$(document).ready(function() {
 				cache_accesses = document.getElementById("cache_access");
 				items = document.getElementById("items");
 				mem_hits = document.getElementById("mem_hits");
 				disk_hits = document.getElementById("disk_hits");
 				url_hits = document.getElementById("url_hits");
+				db = document.getElementById("db");
 
 				setInterval(updateCache, 5000);
+				setInterval(updateDb, 5000);
 			});
 		</script>
 	</head>
@@ -45,6 +63,6 @@
 		<p>Mem hits: <span id="mem_hits"></span></p>
 		<p>Disk hits: <span id="disk_hits"></span></p>
 		<p>Url hits: <span id="url_hits"></span></p>
-
+		<textarea id="db"></textarea>
 	</body>
 </html>

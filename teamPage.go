@@ -12,7 +12,7 @@ func parseTeam(url string) (int, error) {
 		log.Printf("could not parse team %s: %s", url, err)
 	}
 
-	title := d.Find("h1").Text()
+	name := d.Find("h1").Text()
 
 	country := ""
 	d.Find("div dl dt").EachWithBreak(func(i int, s *goquery.Selection) bool {
@@ -28,8 +28,8 @@ func parseTeam(url string) (int, error) {
 		return 0, errors.New("could not find country of team")
 	}
 
-	// TODO: Add team and country
-	_ = title
+	countryId := addCountry(country)
+	id := addTeam(name, countryId)
 
-	return 1, nil
+	return id, nil
 }

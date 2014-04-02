@@ -60,10 +60,7 @@ func getScoreId(d *goquery.Document) (int, error) {
 		return 0, err
 	}
 
-	// TODO: Add score
-	_ = scoreA
-	_ = scoreB
-	scoreId := 1
+	scoreId := addScore(scoreA, scoreB)
 
 	return scoreId, nil
 }

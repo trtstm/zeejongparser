@@ -49,6 +49,14 @@ type match struct {
 	Score int
 }
 
+type playsMatchInTeam struct {
+	Id int
+	PlayerId int
+	Number int
+	TeamId int
+	MatchId int
+}
+
 type score struct {
 	Id int
 	TeamA int
@@ -73,6 +81,9 @@ var db = struct {
 
 	scoresLock sync.RWMutex
 	Scores     map[string]score
+
+	playsMatchInTeamsLock sync.RWMutex
+	PlaysMatchInTeams     map[string]playsMatchInTeam
 }{
 	Players: map[string]player{},
 	Referees: map[string]referee{},
@@ -80,6 +91,7 @@ var db = struct {
 	Countries: map[string]country{},
 	Matches: map[string]match{},
 	Scores: map[string]score{},
+	PlaysMatchInTeams: map[string]playsMatchInTeam{},
 }
 
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
@@ -203,6 +215,26 @@ func addScore(teamA, teamB int) int {
 	db.Scores[hash] = score{Id: id, TeamA: teamA, TeamB: teamB}
 
 	db.scoresLock.Unlock()
+
+	return id
+}
+
+func addPlaysMatchInTeam(playerId, number, teamId, matchId int) int {
+	hash := getHash(playerId, teamId, matchId)
+
+	db.playsMatchInTeamsLock.RLock()
+	if score, ok := db.PlaysMatchInTeams[hash]; ok {
+		db.playsMatchInTeamsLock.RUnlock()
+		return score.Id
+	}
+	db.playsMatchInTeamsLock.RUnlock()
+
+	db.playsMatchInTeamsLock.Lock()
+	id := len(db.PlaysMatchInTeams)
+	db.PlaysMatchInTeams[hash] = playsMatchInTeam{Id: id, PlayerId: playerId, Number: number,
+								TeamId: teamId, MatchId: matchId}
+
+	db.playsMatchInTeamsLock.Unlock()
 
 	return id
 }

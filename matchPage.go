@@ -115,6 +115,7 @@ func getReferee(d *goquery.Document) (int, error) {
 
 type Player struct {
 	Url         string
+	Team int
 	Shirtnumber int
 }
 
@@ -145,7 +146,12 @@ func getPlayers(d *goquery.Document) []Player {
 				return
 			}
 
-			p := Player{Url: playerUrl, Shirtnumber: shirtnumber}
+			team := 0
+			if col == ".right" {
+				team = 1
+			}
+
+			p := Player{Url: playerUrl, Team: team, Shirtnumber: shirtnumber}
 			players = append(players, p)
 		})
 	}
@@ -244,6 +250,12 @@ func parseMatch(url string, competitionId, seasonId int) {
 		return
 	}
 
+	refereeId, err := getReferee(d)
+	if err != nil {
+		log.Printf("could not find referee in match")
+		return
+	}
+
 	scoreId, err := getScoreId(d)
 	if err != nil {
 		log.Printf("could not find score in match")
@@ -256,11 +268,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 		return
 	}
 
-	refereeId, err := getReferee(d)
-	if err != nil {
-		log.Printf("could not find referee in match")
-		return
-	}
+	matchId := addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId)
 
 	for _, p := range getPlayers(d) {
 		playerId, err := parsePlayer(BASE + p.Url)
@@ -269,9 +277,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 			continue
 		}
 
-		// TODO: Add player to match
-
-		_ = playerId
+		addPlaysMatchInTeam(playerId, p.Shirtnumber, teamsId[p.Team], matchId)
 	}
 
 	for _, c := range getCoaches(d) {
@@ -296,6 +302,4 @@ func parseMatch(url string, competitionId, seasonId int) {
 
 	_ = teamsId
 	
-
-	addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId)
 }

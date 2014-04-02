@@ -161,6 +161,7 @@ func getPlayers(d *goquery.Document) []Player {
 
 type Coach struct {
 	Url string
+	Team int
 }
 
 func getCoaches(d *goquery.Document) []Coach {
@@ -176,7 +177,12 @@ func getCoaches(d *goquery.Document) []Coach {
 			continue
 		}
 
-		c := Coach{Url: coachUrl}
+		team := 0
+		if col == ".right" {
+			team = 1
+		}
+
+		c := Coach{Url: coachUrl, Team: team}
 		coaches = append(coaches, c)
 	}
 
@@ -288,8 +294,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 		}
 
 		
-		// TODO: Add coach to coaches team.
-		_ = coachId
+		addCoacheses(coachId, teamsId[c.Team], matchId)
 	}
 	
 	

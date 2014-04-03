@@ -137,7 +137,7 @@ var db = struct {
 }
 
 func writeDb(file string) error {
-	json, err := json.Marshal(db)
+	json, err := json.MarshalIndent(db, "", "    ") 
 	if err != nil {
 		return err
 	}

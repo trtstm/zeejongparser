@@ -7,7 +7,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 )
 
 var rootTpl *template.Template
@@ -46,9 +45,6 @@ func dbInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func startWs() {
 	address := ":8080"
-	if len(os.Args) == 2 {
-		address = os.Args[1]
-	}
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", root)

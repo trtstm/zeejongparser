@@ -6,7 +6,9 @@ import (
 	"encoding/hex"
 	"strconv"
 	"strings"
+	"encoding/json"
 	"sync"
+	"io/ioutil"
 )
 
 type player struct {
@@ -132,6 +134,15 @@ var db = struct {
 	Teams: map[string]team{},
 	Seasons: map[string]season{},
 	Competitions: map[string]competition{},
+}
+
+func writeDb(file string) error {
+	json, err := json.MarshalIndent(db, "", "    ") 
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(file, json, 0777)
 }
 
 func getDbSize() map[string]int {

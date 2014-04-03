@@ -199,7 +199,7 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 	db.playersLock.RUnlock()
 
 	db.playersLock.Lock()
-	id := len(db.Players)
+	id := len(db.Players) + 1
 	db.Players[hash] = player{Id: id, Firstname: firstname,
 		Lastname: lastname, Country: countryId, DateOfBirth: dateOfBirth,
 		Height: height, Weight: weight, Position: position}
@@ -222,7 +222,7 @@ func addReferee(firstname, lastname string, countryId int) int {
 	db.refereesLock.RUnlock()
 
 	db.refereesLock.Lock()
-	id := len(db.Referees)
+	id := len(db.Referees) + 1
 	db.Referees[hash] = referee{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 	db.refereesLock.Unlock()
 
@@ -243,7 +243,7 @@ func addCoach(firstname, lastname string, countryId int) int {
 	db.coachesLock.RUnlock()
 
 	db.coachesLock.Lock()
-	id := len(db.Coaches)
+	id := len(db.Coaches) + 1
 	db.Coaches[hash] = coach{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 	db.coachesLock.Unlock()
 
@@ -263,7 +263,7 @@ func addCountry(name string) int {
 	db.countriesLock.RUnlock()
 
 	db.countriesLock.Lock()
-	id := len(db.Countries)
+	id := len(db.Countries) + 1
 	db.Countries[hash] = country{Id: id, Name: name}
 	db.countriesLock.Unlock()
 
@@ -281,7 +281,7 @@ func addMatch(teamA, teamB, season, referee, date, score int) int {
 	db.matchesLock.RUnlock()
 
 	db.matchesLock.Lock()
-	id := len(db.Matches)
+	id := len(db.Matches) + 1
 	db.Matches[hash] = match{Id: id, TeamA: teamA, TeamB: teamB, Season: season,
 							Referee: referee, Date: date, Score: score}
 
@@ -301,7 +301,7 @@ func addScore(teamA, teamB int) int {
 	db.scoresLock.RUnlock()
 
 	db.scoresLock.Lock()
-	id := len(db.Scores)
+	id := len(db.Scores) + 1
 	db.Scores[hash] = score{Id: id, TeamA: teamA, TeamB: teamB}
 
 	db.scoresLock.Unlock()
@@ -320,7 +320,7 @@ func addPlaysMatchInTeam(playerId, number, teamId, matchId int) int {
 	db.playsMatchInTeamsLock.RUnlock()
 
 	db.playsMatchInTeamsLock.Lock()
-	id := len(db.PlaysMatchInTeams)
+	id := len(db.PlaysMatchInTeams) + 1
 	db.PlaysMatchInTeams[hash] = playsMatchInTeam{Id: id, PlayerId: playerId, Number: number,
 								TeamId: teamId, MatchId: matchId}
 
@@ -340,7 +340,7 @@ func addCoacheses(coachId, teamId, matchId int) int {
 	db.coachesesLock.RUnlock()
 
 	db.coachesesLock.Lock()
-	id := len(db.Coacheses)
+	id := len(db.Coacheses) + 1
 	db.Coacheses[hash] = coacheses{Id: id, CoachId: coachId, TeamId: teamId, MatchId: matchId}
 
 	db.coachesesLock.Unlock()
@@ -359,7 +359,7 @@ func addTeam(name string, countryId int) int {
 	db.teamsLock.RUnlock()
 
 	db.teamsLock.Lock()
-	id := len(db.Teams)
+	id := len(db.Teams) + 1
 	db.Teams[hash] = team{Id: id, Name: name, CountryId: countryId}
 
 	db.teamsLock.Unlock()
@@ -378,7 +378,7 @@ func addSeason(name string, competitionId int) int {
 	db.seasonsLock.RUnlock()
 
 	db.seasonsLock.Lock()
-	id := len(db.Seasons)
+	id := len(db.Seasons) + 1
 	db.Seasons[hash] = season{Id: id, Name: name, CompetitionId: competitionId}
 
 	db.seasonsLock.Unlock()
@@ -397,7 +397,7 @@ func addCompetition(name string) int {
 	db.competitionsLock.RUnlock()
 
 	db.competitionsLock.Lock()
-	id := len(db.Competitions)
+	id := len(db.Competitions) + 1
 	db.Competitions[hash] = competition{Id: id, Name: name}
 
 	db.competitionsLock.Unlock()

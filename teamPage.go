@@ -31,5 +31,19 @@ func parseTeam(url string) (int, error) {
 	countryId := addCountry(country)
 	id := addTeam(name, countryId)
 
+	d.Find(".table.squad div a").Each(func(i int, s *goquery.Selection) {
+		playerUrl, ok := s.Attr("href")
+		if !ok {
+			return
+		}
+
+		playerId, err := parsePlayer(BASE + playerUrl)
+		if err != nil {
+			return
+		}
+
+		addPlaysIn(id, playerId)
+	})
+
 	return id, nil
 }

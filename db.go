@@ -59,6 +59,12 @@ type playsMatchInTeam struct {
 	MatchId int
 }
 
+type playsIn struct {
+	Id int
+	TeamId int
+	PlayerId int
+}
+
 type score struct {
 	Id int
 	TeamA int
@@ -111,6 +117,9 @@ var db = struct {
 	playsMatchInTeamsLock sync.RWMutex
 	PlaysMatchInTeams     map[string]playsMatchInTeam
 
+	playsInLock sync.RWMutex
+	PlaysIn     map[string]playsIn
+
 	coachesesLock sync.RWMutex
 	Coacheses     map[string]coacheses
 
@@ -130,6 +139,7 @@ var db = struct {
 	Matches: map[string]match{},
 	Scores: map[string]score{},
 	PlaysMatchInTeams: map[string]playsMatchInTeam{},
+	PlaysIn: map[string]playsIn{},
 	Coacheses: map[string]coacheses{},
 	Teams: map[string]team{},
 	Seasons: map[string]season{},
@@ -160,6 +170,8 @@ func getDbSize() map[string]int {
 	defer db.scoresLock.Unlock()
 	db.playsMatchInTeamsLock.Lock()
 	defer db.playsMatchInTeamsLock.Unlock()
+	db.playsInLock.Lock()
+	defer db.playsInLock.Unlock()
 	db.coachesesLock.Lock()
 	defer db.coachesesLock.Unlock()
 	db.teamsLock.Lock()
@@ -177,6 +189,7 @@ func getDbSize() map[string]int {
 		"Matches": len(db.Matches),
 		"Scores": len(db.Scores),
 		"PlaysMatchInTeam": len(db.PlaysMatchInTeams),
+		"PlaysIn": len(db.PlaysIn),
 		"Coacheses": len(db.Coacheses),
 		"Teams": len(db.Teams),
 		"Seasons": len(db.Seasons),
@@ -325,6 +338,25 @@ func addPlaysMatchInTeam(playerId, number, teamId, matchId int) int {
 								TeamId: teamId, MatchId: matchId}
 
 	db.playsMatchInTeamsLock.Unlock()
+
+	return id
+}
+
+func addPlaysIn(teamId, playerId int) int {
+	hash := getHash(teamId, playerId)
+
+	db.playsInLock.RLock()
+	if pin, ok := db.PlaysIn[hash]; ok {
+		db.playsInLock.RUnlock()
+		return pin.Id
+	}
+	db.playsInLock.RUnlock()
+
+	db.playsInLock.Lock()
+	id := len(db.PlaysIn) + 1
+	db.PlaysIn[hash] = playsIn{Id: id, TeamId: teamId, PlayerId: playerId}
+
+	db.playsInLock.Unlock()
 
 	return id
 }

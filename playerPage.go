@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func removeNonAlpha(r rune) bool {
@@ -15,10 +16,22 @@ func removeNonAlpha(r rune) bool {
 	return true
 }
 
+
+func parseDate(date string) (int, error) {
+	
+	datetime, err := time.Parse("2 January 2006", date)
+	if err != nil {
+		return 0, err
+	}
+	return int(datetime.Unix()), nil
+	
+}
+
+
 func parsePlayer(url string) (int, error) {
 	d, err := getDocument(url)
 	if err != nil {
-		log.Printf("could not parse referee %s: %s", url, err)
+		log.Printf("Could not parse player %s: %s", url, err)
 		return 0, err
 	}
 
@@ -53,7 +66,10 @@ func parsePlayer(url string) (int, error) {
 	firstname := info["first name"]
 	lastname := info["last name"]
 	nationality := addCountry(info["nationality"])
-	dateOfBirth := 0
+	dateOfBirth, err := parseDate(info["date of birth"])
+	if err != nil {
+		//log.Printf("Could not parse date %s %s: %s", url, info["date of birth"])
+	}
 	height, _ := strconv.Atoi(strings.TrimFunc(info["height"], removeNonAlpha))
 	weight, _ := strconv.Atoi(strings.TrimFunc(info["weight"], removeNonAlpha))
 	position := info["position"]

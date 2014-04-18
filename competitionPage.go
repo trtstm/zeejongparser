@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/PuerkitoBio/goquery"
 	"log"
+	"sync"
 )
 
 func getSeasons(d *goquery.Document) map[string]string {
@@ -40,8 +41,19 @@ func parseCompetition(url string) {
 	competitionId := addCompetition(competition)
 
 	seasons := getSeasons(d)
+	
+	wg := sync.WaitGroup{}
+	
 	for title, url := range seasons {
-		parseSeason(title, BASE+url, competitionId)
+	
+		wg.Add(1)
+		go func(title string, url string, id int){
+			defer wg.Done()
+			parseSeason(title, url, competitionId)
+		}(title, BASE + url, competitionId)
+	
 	}
+	
+	wg.Wait()
 
 }

@@ -231,9 +231,12 @@ func parseGoals(d *goquery.Document, matchId int) {
 		goal.PlayerUrl,_ = s.Find("a").Attr("href")
 		goal.PlayerUrl = BASE + goal.PlayerUrl
 		
+		playerId, _ := parsePlayer(goal.PlayerUrl)
+		
 		
 		
 		//TODO add the goal to the database
+		addGoal(playerId, matchId, int(time))
 		
 		return true
 		
@@ -299,7 +302,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 	
 	
 	//Parse the goals
-	parseGoals(d, 1)
+	parseGoals(d, matchId)
 	
 	_ = date
 

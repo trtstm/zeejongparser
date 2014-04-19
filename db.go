@@ -95,6 +95,13 @@ type competition struct {
 	Name string
 }
 
+type goal struct {
+	Id int
+	MatchId int
+	PlayerId int
+	Time int
+}
+
 var db = struct {
 	playersLock sync.RWMutex
 	Players     map[string]player
@@ -131,6 +138,10 @@ var db = struct {
 
 	competitionsLock sync.RWMutex
 	Competitions     map[string]competition
+	
+	goalsLock sync.RWMutex
+	Goals map[string]goal
+	
 }{
 	Players: map[string]player{},
 	Referees: map[string]referee{},
@@ -144,6 +155,7 @@ var db = struct {
 	Teams: map[string]team{},
 	Seasons: map[string]season{},
 	Competitions: map[string]competition{},
+	Goals: map[string]goal{},
 }
 
 func writeDb(file string) error {
@@ -180,6 +192,8 @@ func getDbSize() map[string]int {
 	defer db.seasonsLock.Unlock()
 	db.competitionsLock.Lock()
 	defer db.competitionsLock.Unlock()
+	db.goalsLock.Lock()
+	defer db.goalsLock.Unlock()
 
 	return map[string]int {
 		"Players": len(db.Players),
@@ -194,6 +208,7 @@ func getDbSize() map[string]int {
 		"Teams": len(db.Teams),
 		"Seasons": len(db.Seasons),
 		"Competitions": len(db.Competitions),
+		"Goals": len(db.Goals),
 	}
 }
 
@@ -204,14 +219,13 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 
 	hash := getHash(firstname, lastname, countryId, dateOfBirth)
 
-	db.playersLock.RLock()
+	db.playersLock.Lock()
 	if player, ok := db.Players[hash]; ok {
-		db.playersLock.RUnlock()
+		db.playersLock.Unlock()
 		return player.Id
 	}
-	db.playersLock.RUnlock()
 
-	db.playersLock.Lock()
+	//db.playersLock.Lock()
 	id := len(db.Players) + 1
 	db.Players[hash] = player{Id: id, Firstname: firstname,
 		Lastname: lastname, Country: countryId, DateOfBirth: dateOfBirth,
@@ -436,6 +450,28 @@ func addCompetition(name string) int {
 
 	return id
 }
+
+
+func addGoal(playerId, matchId, time int) int {
+	hash := getHash(playerId, matchId, time)
+
+	db.goalsLock.RLock()
+	if goal, ok := db.Goals[hash]; ok {
+		db.goalsLock.RUnlock()
+		return goal.Id
+	}
+	db.goalsLock.RUnlock()
+
+	db.goalsLock.Lock()
+	id := len(db.Goals) + 1
+	db.Goals[hash] = goal{Id: id, PlayerId: playerId, MatchId: matchId, Time: time}
+
+	db.goalsLock.Unlock()
+
+	return id
+}
+
+
 
 func getHash(params ...interface{}) string {
 	encoding := ""

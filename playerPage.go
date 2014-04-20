@@ -63,6 +63,7 @@ func parsePlayer(url string) (int, error) {
 		return true
 	})
 
+
 	firstname := info["first name"]
 	lastname := info["last name"]
 	nationality := addCountry(info["nationality"])
@@ -75,6 +76,12 @@ func parsePlayer(url string) (int, error) {
 	position := info["position"]
 
 	id := addPlayer(firstname, lastname, nationality, dateOfBirth, height, weight, position)
+
+	// Get image
+	imgSrc, ok := d.Find(".block_player_passport img").Attr("src")
+	if ok {
+		getImage(imgSrc, "Player", id)
+	}
 
 	return id, nil
 }

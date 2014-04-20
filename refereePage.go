@@ -36,5 +36,11 @@ func parseReferee(url string) (int, error) {
 	countryId := addCountry(country)
 	id := addReferee(firstname, lastname, countryId)
 
+	// Get image
+	imgSrc, ok := d.Find(".block_player_passport img").Attr("src")
+	if ok {
+		getImage(imgSrc, "Referee", id)
+	}
+
 	return id, nil
 }

@@ -31,6 +31,12 @@ func parseTeam(url string) (int, error) {
 	countryId := addCountry(country)
 	id := addTeam(name, countryId)
 
+	// Get image
+	imgSrc, ok := d.Find(".block_team_info img").Attr("src")
+	if ok {
+		getImage(imgSrc, "Team", id)
+	}
+
 	d.Find(".table.squad div a").Each(func(i int, s *goquery.Selection) {
 		playerUrl, ok := s.Attr("href")
 		if !ok {

@@ -36,5 +36,11 @@ func parseCoach(url string) (int, error) {
 	countryId := addCountry(country)
 	id := addCoach(firstname, lastname, countryId)
 
+	// Get image
+	imgSrc, ok := d.Find(".block_player_passport img").Attr("src")
+	if ok {
+		getImage(imgSrc, "Coach", id)
+	}
+
 	return id, nil
 }

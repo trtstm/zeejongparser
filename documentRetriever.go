@@ -12,7 +12,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"zeejongparser/throttler"
 )
+
+var cThrottler = throttler.NewConnectionThrottler(1)
 
 type CacheInfo struct {
 	Accesses     int
@@ -76,7 +79,7 @@ var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
 	documentCacheLock.RLock()
-	if len(documentCache) > 200 {
+	if len(documentCache) > 500 {
 		documentCacheLock.RUnlock()
 		documentCacheLock.Lock()
 		documentCache = map[string]*goquery.Document{}
@@ -110,7 +113,7 @@ func getDocument(url string) (*goquery.Document, error) {
 	if err != nil {
 		var resp *http.Response
 		for i := 0; i < 10; i++ {
-			resp, err = http.Get(url)
+			resp, err = cThrottler.Get(url)
 			if err != nil {
 				return document, err
 			}

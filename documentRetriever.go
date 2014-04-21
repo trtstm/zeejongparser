@@ -76,7 +76,7 @@ var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
 	documentCacheLock.RLock()
-	if len(documentCache) > 1000 {
+	if len(documentCache) > 200 {
 		documentCacheLock.RUnlock()
 		documentCacheLock.Lock()
 		documentCache = map[string]*goquery.Document{}
@@ -114,19 +114,22 @@ func getDocument(url string) (*goquery.Document, error) {
 			if err != nil {
 				return document, err
 			}
-			defer resp.Body.Close()
 
 			if resp.StatusCode == 200 {
 				cacheInfoLock.Lock()
 				cacheInfo.UrlAccesses += 1
 				cacheInfoLock.Unlock()
 				break
-			} else if resp.StatusCode/100 == 5 {
+			} else if resp.StatusCode/100 == 5 && i < 9 {
+				resp.Body.Close()
 				time.Sleep(time.Second * 10)
 			} else {
+				resp.Body.Close()
 				return document, errors.New("response status is " + resp.Status)
 			}
 		}
+
+		defer resp.Body.Close()
 
 		contents, err := ioutil.ReadAll(resp.Body)
 		if err != nil {

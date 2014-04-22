@@ -35,9 +35,10 @@ func getCacheInfo() CacheInfo {
 
 	cacheInfoLock.Lock()
 	cacheInfo.Items = items
+	cInfo := cacheInfo
 	cacheInfoLock.Unlock()
 
-	return cacheInfo
+	return cInfo
 }
 
 var diskLock sync.RWMutex

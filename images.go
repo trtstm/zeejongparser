@@ -42,7 +42,7 @@ func getImage(url, ownerType string, id int) string {
 	var resp *http.Response
 	for i := 0; i < 10; i++ {
 		var err error
-		resp, err = http.Get(url)
+		resp, err = cThrottler.Get(url)
 		if err != nil {
 			return genericName
 		}

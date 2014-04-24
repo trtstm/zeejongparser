@@ -162,7 +162,8 @@ func writeDb(file string) error {
 
 func getDbSize() map[string]int {
 
-
+	db.dbLock.Lock()
+	defer db.dbLock.Unlock()
 
 	return map[string]int {
 		"Players": len(db.Players),

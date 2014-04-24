@@ -102,6 +102,15 @@ type goal struct {
 	Time int
 }
 
+type card struct {
+	Id int
+	MatchId int
+	PlayerId int
+	Time int
+	Type int
+}
+
+
 var db = struct {
 	
 	
@@ -133,6 +142,8 @@ var db = struct {
 	
 	Goals map[string]goal
 	
+	Cards map[string]card
+	
 
 	
 }{
@@ -149,6 +160,7 @@ var db = struct {
 	Seasons: map[string]season{},
 	Competitions: map[string]competition{},
 	Goals: map[string]goal{},
+	Cards: map[string]card{},
 }
 
 func writeDb(file string) error {
@@ -178,6 +190,7 @@ func getDbSize() map[string]int {
 		"Seasons": len(db.Seasons),
 		"Competitions": len(db.Competitions),
 		"Goals": len(db.Goals),
+		"Cards": len(db.Cards),
 	}
 }
 
@@ -493,6 +506,34 @@ func addGoal(playerId, matchId, time int) int {
 
 	return id
 }
+
+
+
+func addCard(playerId, matchId, time, cardType int) int {
+
+	db.dbLock.Lock()
+	defer db.dbLock.Unlock()
+
+
+	hash := getHash(playerId, matchId, time, cardType)
+
+
+	if card, ok := db.Cards[hash]; ok {
+
+		return card.Id
+	}
+
+
+
+	id := len(db.Cards) + 1
+	db.Cards[hash] = card{Id: id, PlayerId: playerId, MatchId: matchId, Time: time, Type: cardType}
+
+
+
+	return id
+}
+
+
 
 
 

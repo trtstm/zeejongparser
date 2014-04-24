@@ -159,6 +159,76 @@ func getPlayers(d *goquery.Document) []Player {
 	return players
 }
 
+
+
+func parseCards(d *goquery.Document, matchId int) {
+	
+	
+	cols := []string{".left", ".right"}
+	
+	for _, col := range cols {
+		playerTag := d.Selection.Find(".block_match_lineups " + col + " td.player")
+		playerTag.Each(func(i int, s *goquery.Selection) {
+			
+			playerUrl, ok := s.Parent().Find(".player a").Attr("href")
+			if !ok {
+				return
+			}
+			playerId, err := parsePlayer(BASE + playerUrl)
+			if err != nil {
+				return
+			}
+			
+			
+			s.Parent().Find(".bookings span").Each(func(i int, s *goquery.Selection) {
+			
+				bookingUrl, ok := s.Find("img").Attr("src")
+				cardType := 1
+				
+				if ok {
+					
+					if strings.Contains(bookingUrl, "YC.png") {
+						cardType = 1
+					} else if strings.Contains(bookingUrl, "RC.png") {
+						cardType = 2
+					}
+					
+					
+					stringTime := strings.TrimSpace(s.Text())
+					
+					if err == nil {
+						rawTime := strings.Split(strings.TrimSuffix(stringTime, "'"), "+")
+						
+						var time int64 = 0
+						
+						for _,item := range rawTime {
+							num, err := strconv.ParseInt(item, 10, 16)
+							if err == nil {
+								time += num
+							}
+						}
+						
+						addCard(playerId, matchId, int(time), cardType)
+					}
+					
+					
+					
+					
+				}
+			
+			
+				
+			
+			})
+		
+		})
+
+	}
+	
+}
+
+
+
 type Coach struct {
 	Url string
 	Team int
@@ -303,6 +373,9 @@ func parseMatch(url string, competitionId, seasonId int) {
 	
 	//Parse the goals
 	parseGoals(d, matchId)
+	
+	//Parse the cards
+	parseCards(d, matchId)
 	
 	_ = date
 

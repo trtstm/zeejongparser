@@ -4,7 +4,11 @@ import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"log"
+	"sync"
 )
+
+var counter = map[string]bool{}
+var counterLock = sync.RWMutex{}
 
 func parseTeam(url string) (int, error) {
 	d, err := getDocument(url)
@@ -37,19 +41,31 @@ func parseTeam(url string) (int, error) {
 		getImage(imgSrc, "Team", id)
 	}
 
-	d.Find(".table.squad div a").Each(func(i int, s *goquery.Selection) {
-		playerUrl, ok := s.Attr("href")
-		if !ok {
-			return
-		}
+	counterLock.RLock()
+	if _, ok := counter[url]; !ok {
+		counterLock.RUnlock()
 
-		playerId, err := parsePlayer(BASE + playerUrl)
-		if err != nil {
-			return
-		}
+		counterLock.Lock()
+		counter[url] = true
 
-		addPlaysIn(id, playerId)
-	})
+		d.Find(".table.squad div a").Each(func(i int, s *goquery.Selection) {
+			playerUrl, ok := s.Attr("href")
+			if !ok {
+				return
+			}
+
+			playerId, err := parsePlayer(BASE + playerUrl)
+			if err != nil {
+				return
+			}
+
+			addPlaysIn(id, playerId)
+		})
+		counterLock.Unlock()
+
+	} else {
+		counterLock.RUnlock()
+	}
 
 	return id, nil
 }

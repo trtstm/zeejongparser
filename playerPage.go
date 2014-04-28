@@ -18,7 +18,7 @@ func removeNonAlpha(r rune) bool {
 
 
 func parseDate(date string) (int, error) {
-	
+
 	datetime, err := time.Parse("2 January 2006", date)
 	if err != nil {
 		return 0, err
@@ -27,8 +27,11 @@ func parseDate(date string) (int, error) {
 	
 }
 
-
 func parsePlayer(url string) (int, error) {
+	if id, ok := getUrlFromCache(url); ok {
+		return id, nil
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("Could not parse player %s: %s", url, err)
@@ -75,7 +78,7 @@ func parsePlayer(url string) (int, error) {
 	weight, _ := strconv.Atoi(strings.TrimFunc(info["weight"], removeNonAlpha))
 	position := info["position"]
 
-	id := addPlayer(firstname, lastname, nationality, dateOfBirth, height, weight, position)
+	id := addPlayer(firstname, lastname, nationality, dateOfBirth, height, weight, position, url)
 
 	// Get image
 	imgSrc, ok := d.Find(".block_player_passport img").Attr("src")

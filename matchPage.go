@@ -319,6 +319,10 @@ func parseGoals(d *goquery.Document, matchId int) {
 
 
 func parseMatch(url string, competitionId, seasonId int) {
+	if _, ok := getUrlFromCache(url); ok {
+		return
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse match %s: %s", url, err)
@@ -349,7 +353,7 @@ func parseMatch(url string, competitionId, seasonId int) {
 		return
 	}
 
-	matchId := addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId)
+	matchId := addMatch(teamsId[0], teamsId[1], seasonId, refereeId, date, scoreId, url)
 
 	for _, p := range getPlayers(d) {
 		playerId, err := parsePlayer(BASE + p.Url)

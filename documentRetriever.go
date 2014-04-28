@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -79,18 +78,6 @@ var documentCacheLock sync.RWMutex
 var documentCache = map[string]*goquery.Document{}
 
 func getDocument(url string) (*goquery.Document, error) {
-	documentCacheLock.RLock()
-	if len(documentCache) > 500 {
-		documentCacheLock.RUnlock()
-		documentCacheLock.Lock()
-		documentCache = map[string]*goquery.Document{}
-		documentCacheLock.Unlock()
-
-		runtime.GC()
-	} else {
-		documentCacheLock.RUnlock()
-	}
-
 	cacheInfoLock.Lock()
 	cacheInfo.Accesses += 1
 	cacheInfoLock.Unlock()
@@ -98,25 +85,13 @@ func getDocument(url string) (*goquery.Document, error) {
 	bHash := md5.Sum([]byte(url))
 	hash := hex.EncodeToString(bHash[:])
 
-	documentCacheLock.RLock()
-	document, ok := documentCache[hash]
-	if ok {
-		documentCacheLock.RUnlock()
-
-		cacheInfoLock.Lock()
-		cacheInfo.MemAccesses += 1
-		cacheInfoLock.Unlock()
-		return document, nil
-	}
-	documentCacheLock.RUnlock()
-
 	reader, err := getFromDisk(hash)
 	if err != nil {
 		var resp *http.Response
 		for i := 0; i < 10; i++ {
 			resp, err = cThrottler.Get(url)
 			if err != nil {
-				return document, err
+				return nil, err
 			}
 
 			if resp.StatusCode == 200 {
@@ -129,7 +104,7 @@ func getDocument(url string) (*goquery.Document, error) {
 				time.Sleep(time.Second * 10)
 			} else {
 				resp.Body.Close()
-				return document, errors.New("response status is " + resp.Status)
+				return nil, errors.New("response status is " + resp.Status)
 			}
 		}
 
@@ -137,7 +112,7 @@ func getDocument(url string) (*goquery.Document, error) {
 
 		contents, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return document, errors.New("could not read response")
+			return nil, errors.New("could not read response")
 		}
 
 		addToDisk(hash, string(contents))
@@ -148,14 +123,10 @@ func getDocument(url string) (*goquery.Document, error) {
 		cacheInfoLock.Unlock()
 	}
 
-	document, err = goquery.NewDocumentFromReader(reader)
+	document, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return document, err
 	}
-
-	documentCacheLock.Lock()
-	documentCache[hash] = document
-	documentCacheLock.Unlock()
 
 	return document, nil
 }

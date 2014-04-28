@@ -5,6 +5,10 @@ import (
 )
 
 func parseCoach(url string) (int, error) {
+	if id, ok := getUrlFromCache(url); ok {
+		return id, nil
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse coach %s: %s", url, err)
@@ -34,7 +38,7 @@ func parseCoach(url string) (int, error) {
 	}
 
 	countryId := addCountry(country)
-	id := addCoach(firstname, lastname, countryId)
+	id := addCoach(firstname, lastname, countryId, url)
 
 	// Get image
 	imgSrc, ok := d.Find(".block_player_passport img").Attr("src")

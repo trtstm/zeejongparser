@@ -11,6 +11,10 @@ var counter = map[string]bool{}
 var counterLock = sync.RWMutex{}
 
 func parseTeam(url string) (int, error) {
+	if id, ok := getUrlFromCache(url); ok {
+		return id, nil
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse team %s: %s", url, err)
@@ -33,7 +37,7 @@ func parseTeam(url string) (int, error) {
 	}
 
 	countryId := addCountry(country)
-	id := addTeam(name, countryId)
+	id := addTeam(name, countryId, url)
 
 	// Get image
 	imgSrc, ok := d.Find(".block_team_info img").Attr("src")

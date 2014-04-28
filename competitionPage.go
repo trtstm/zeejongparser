@@ -25,6 +25,10 @@ func getSeasons(d *goquery.Document) map[string]string {
 }
 
 func parseCompetition(url string) {
+	if _, ok := getUrlFromCache(url); ok {
+		return
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse competition %s: %s", url, err)
@@ -38,7 +42,7 @@ func parseCompetition(url string) {
 	}
 
 	competition := h1.Children().Get(0).NextSibling.Data
-	competitionId := addCompetition(competition)
+	competitionId := addCompetition(competition, url)
 
 	seasons := getSeasons(d)
 	

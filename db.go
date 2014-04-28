@@ -20,6 +20,7 @@ type player struct {
 	Height      int
 	Weight      int
 	Position    string
+	Url string
 }
 
 type referee struct {
@@ -144,7 +145,7 @@ var db = struct {
 	
 	Cards map[string]card
 	
-
+	Urls map[string]int
 	
 }{
 	Players: map[string]player{},
@@ -161,6 +162,7 @@ var db = struct {
 	Competitions: map[string]competition{},
 	Goals: map[string]goal{},
 	Cards: map[string]card{},
+	Urls: map[string]int{},
 }
 
 func writeDb(file string) error {
@@ -195,8 +197,20 @@ func getDbSize() map[string]int {
 	}
 }
 
-func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position string) int {
-	
+func getUrlFromCache(url string) (int, bool) {
+	db.dbLock.RLock()
+	defer db.dbLock.RUnlock()
+
+	id, ok := db.Urls[url]
+	return id, ok
+}
+
+// Should be called from a thread safe caller.
+func addUrlToCache(url string, id int) {
+	db.Urls[url] = id
+}
+
+func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
 	
@@ -216,11 +230,12 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 		Lastname: lastname, Country: countryId, DateOfBirth: dateOfBirth,
 		Height: height, Weight: weight, Position: position}
 
+	addUrlToCache(url, id);
+
 	return id
 }
 
-func addReferee(firstname, lastname string, countryId int) int {
-	
+func addReferee(firstname, lastname string, countryId int, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
 	
@@ -238,12 +253,12 @@ func addReferee(firstname, lastname string, countryId int) int {
 	id := len(db.Referees) + 1
 	db.Referees[hash] = referee{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 
+	addUrlToCache(url, id);
 
 	return id
 }
 
-func addCoach(firstname, lastname string, countryId int) int {
-	
+func addCoach(firstname, lastname string, countryId int, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
 	
@@ -252,23 +267,19 @@ func addCoach(firstname, lastname string, countryId int) int {
 
 	hash := getHash(firstname, lastname, countryId)
 
-
 	if coach, ok := db.Coaches[hash]; ok {
-
 		return coach.Id
 	}
-
-
 
 	id := len(db.Coaches) + 1
 	db.Coaches[hash] = coach{Id: id, Firstname: firstname, Lastname: lastname, Country: countryId}
 
+	addUrlToCache(url, id);
 
 	return id
 }
 
 func addCountry(name string) int {
-	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
 	
@@ -283,16 +294,13 @@ func addCountry(name string) int {
 		return country.Id
 	}
 
-
-
 	id := len(db.Countries) + 1
 	db.Countries[hash] = country{Id: id, Name: name}
-
 
 	return id
 }
 
-func addMatch(teamA, teamB, season, referee, date, score int) int {
+func addMatch(teamA, teamB, season, referee, date, score int, url string) int {
 	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -312,7 +320,7 @@ func addMatch(teamA, teamB, season, referee, date, score int) int {
 	db.Matches[hash] = match{Id: id, TeamA: teamA, TeamB: teamB, Season: season,
 							Referee: referee, Date: date, Score: score}
 
-
+	addUrlToCache(url, id);
 
 	return id
 }
@@ -414,7 +422,7 @@ func addCoacheses(coachId, teamId, matchId int) int {
 	return id
 }
 
-func addTeam(name string, countryId int) int {
+func addTeam(name string, countryId int, url string) int {
 	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -432,12 +440,12 @@ func addTeam(name string, countryId int) int {
 	id := len(db.Teams) + 1
 	db.Teams[hash] = team{Id: id, Name: name, CountryId: countryId}
 
-
+	addUrlToCache(url, id);
 
 	return id
 }
 
-func addSeason(name string, competitionId int) int {
+func addSeason(name string, competitionId int, url string) int {
 	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -455,12 +463,12 @@ func addSeason(name string, competitionId int) int {
 	id := len(db.Seasons) + 1
 	db.Seasons[hash] = season{Id: id, Name: name, CompetitionId: competitionId}
 
-
+	addUrlToCache(url, id);
 
 	return id
 }
 
-func addCompetition(name string) int {
+func addCompetition(name string, url string) int {
 	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -478,7 +486,7 @@ func addCompetition(name string) int {
 	id := len(db.Competitions) + 1
 	db.Competitions[hash] = competition{Id: id, Name: name}
 
-
+	addUrlToCache(url, id);
 
 	return id
 }

@@ -54,14 +54,30 @@ func parseSeason(name, url string, competitionId int) {
 			continue
 		}
 
-		subd.Find("td.score a").Each(func(i int, s *goquery.Selection) {
-			url, ok := s.Attr("href")
-			if !ok {
-				log.Printf("could not get url for match")
-				return
-			}
+		s := subd.Find("div.block_competition_matches_full-wrapper")
+		if len(s.Nodes) > 0 {
+			s.Each(func(i int, t *goquery.Selection) {
+				finalType := t.Find("h2").Text()
+				t.Find("td.score a").Each(func(i int, u *goquery.Selection) {
+					url, ok := u.Attr("href")
+					if !ok {
+						log.Printf("could not get url for match")
+						return
+					}
 
-			parseMatch(BASE+url, competitionId, seasonId)
-		})
+					parseMatch(BASE+url, competitionId, seasonId, finalType)
+				})
+			})
+		} else {
+			subd.Find("td.score a").Each(func(i int, s *goquery.Selection) {
+				url, ok := s.Attr("href")
+				if !ok {
+					log.Printf("could not get url for match")
+					return
+				}
+
+				parseMatch(BASE+url, competitionId, seasonId, "")
+			})
+		}
 	}
 }

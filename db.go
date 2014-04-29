@@ -50,6 +50,7 @@ type match struct {
 	Referee int
 	Date int
 	Score int
+	FinalType string
 }
 
 type playsMatchInTeam struct {
@@ -300,7 +301,7 @@ func addCountry(name string) int {
 	return id
 }
 
-func addMatch(teamA, teamB, season, referee, date, score int, url string) int {
+func addMatch(teamA, teamB, season, referee, date, score int, url string, finalType string) int {
 	
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -318,7 +319,7 @@ func addMatch(teamA, teamB, season, referee, date, score int, url string) int {
 
 	id := len(db.Matches) + 1
 	db.Matches[hash] = match{Id: id, TeamA: teamA, TeamB: teamB, Season: season,
-							Referee: referee, Date: date, Score: score}
+							Referee: referee, Date: date, Score: score, FinalType: finalType}
 
 	addUrlToCache(url, id);
 

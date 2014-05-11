@@ -323,6 +323,14 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 		return
 	}
 
+	finalType = strings.TrimSpace(finalType)
+	if finalType != "" && finalType != "Final" && finalType != "Semi-finals" &&
+		finalType != "3rd Place Final" && finalType != "Quarter-finals" &&
+		finalType != "16th Finals" && finalType != "Final replay" {
+		log.Printf("Found unknown final type: %s", finalType)
+		finalType = "";
+	}
+
 	d, err := getDocument(url)
 	if err != nil {
 		log.Printf("could not parse match %s: %s", url, err)

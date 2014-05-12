@@ -155,6 +155,46 @@ func getPlayers(d *goquery.Document) []Player {
 			players = append(players, p)
 		})
 	}
+	
+	
+	
+	
+	for _, col := range cols {
+		playerTag := d.Selection.Find(".block_match_substitutes " + col + " td.player")
+		playerTag.Each(func(i int, s *goquery.Selection) {
+			shirtnumber := -1
+			shirtnumberString, err := s.Parent().Find(".shirtnumber").Html()
+			if err != nil {
+				log.Println("Could not find player shirtnumber for match")
+			} else {
+				shirtnumberString = strings.TrimSpace(shirtnumberString)
+	
+				shirtnumber, err = strconv.Atoi(shirtnumberString)
+				if err != nil {
+					shirtnumber = -1
+				}
+			}
+	
+			playerUrl, ok := s.Parent().Find(".player a").Attr("href")
+			if !ok {
+				log.Println("Could not find player url for match")
+				return
+			}
+	
+			team := 0
+			if col == ".right" {
+				team = 1
+			}
+	
+			p := Player{Url: playerUrl, Team: team, Shirtnumber: shirtnumber}
+			players = append(players, p)
+		})
+	}
+	
+	
+	
+	
+	
 
 	return players
 }

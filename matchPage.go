@@ -231,6 +231,8 @@ func parseCards(d *goquery.Document, matchId int) {
 						cardType = 1
 					} else if strings.Contains(bookingUrl, "RC.png") {
 						cardType = 2
+					} else if strings.Contains(bookingUrl, "Y2C.png") {
+						cardType = 3
 					} else {
 						return
 					}

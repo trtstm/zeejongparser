@@ -24,7 +24,7 @@ func getSeasons(d *goquery.Document) map[string]string {
 	return seasons
 }
 
-func parseCompetition(url string) {
+func parseCompetition(url, name string) {
 	if _, ok := getUrlFromCache(url); ok {
 		return
 	}
@@ -35,14 +35,7 @@ func parseCompetition(url string) {
 		return
 	}
 
-	h1 := d.Find("h1")
-	if len(h1.Children().Nodes) == 0 {
-		log.Printf("could not find title for competition %s", url)
-		return
-	}
-
-	competition := h1.Children().Get(0).NextSibling.Data
-	competitionId := addCompetition(competition, url)
+	competitionId := addCompetition(name, url)
 
 	seasons := getSeasons(d)
 	

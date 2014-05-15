@@ -387,8 +387,7 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 
 	refereeId, err := getReferee(d)
 	if err != nil {
-		log.Printf("could not find referee in match")
-		return
+		refereeId := 0
 	}
 
 	scoreId, err := getScoreId(d)

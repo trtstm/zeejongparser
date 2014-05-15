@@ -387,7 +387,7 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 
 	refereeId, err := getReferee(d)
 	if err != nil {
-		refereeId := 0
+		refereeId = 0
 	}
 
 	scoreId, err := getScoreId(d)

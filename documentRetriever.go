@@ -14,7 +14,7 @@ import (
 	"zeejongparser/throttler"
 )
 
-var cThrottler = throttler.NewConnectionThrottler(10)
+var cThrottler = throttler.NewConnectionThrottler(50)
 
 type CacheInfo struct {
 	Accesses     int

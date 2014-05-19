@@ -358,14 +358,22 @@ func parseGoals(d *goquery.Document, matchId int) {
 	
 }
 
+func elemInArray(array []string, needle string) bool {
+	for _, elem := range array {
+		if needle == elem {
+			return true
+		}
+	}
 
+	return false
+}
 
 func parseMatch(url string, competitionId, seasonId int, finalType string) {
 	if _, ok := getUrlFromCache(url); ok {
 		return
 	}
 
-	finals := map[string]bool{"Final", "Finals", "Final replay", "Play-offs - Final", "Conference - Finals", "Europe League Play-offs - Finals", "Play Offs UEFA Final",
+	finals := []string{"Final", "Finals", "Final replay", "Play-offs - Final", "Conference - Finals", "Europe League Play-offs - Finals", "Play Offs UEFA Final",
 				 	"Semi-finals", "Play-offs - Semi-finals", "Conference - Semi-finals", "Europa League Play-offs - Semi-finals",
 					"3rd Place Final",
 					"Quarter-finals", "Quarter-finals Replays",
@@ -375,7 +383,7 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 					""}
 
 	finalType = strings.TrimSpace(finalType)
-	if _, ok := finals[finalType]; !ok {
+	if !elemInArray(finals, finalType) {
 		log.Printf("Found unknown final type: %s", finalType)
 		finalType = "";
 	}

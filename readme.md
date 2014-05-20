@@ -55,4 +55,4 @@ Authors
 Acknowledgements
 ----------------
 
-- Parsing/browsing html: [GoQuery](https://github.com/PuerkitoBio/goquery)
+- Parsing html: [GoQuery](https://github.com/PuerkitoBio/goquery)

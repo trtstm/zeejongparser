@@ -5,6 +5,10 @@ import (
 	"log"
 )
 
+/*
+Find the subseasons in this given season.
+e.g. Final, Play-offs, ...
+*/
 func getSubSeasons(d *goquery.Document) []string {
 	urls := []string{}
 
@@ -34,6 +38,10 @@ func getSubSeasons(d *goquery.Document) []string {
 	return urls
 }
 
+
+/*
+Parse the season/tournament with the given url
+*/
 func parseSeason(name, url string, competitionId int) {
 	if _, ok := getUrlFromCache(url); ok {
 		return

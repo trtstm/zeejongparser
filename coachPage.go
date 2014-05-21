@@ -4,6 +4,10 @@ import (
 	"log"
 )
 
+
+/*
+Parse the coach with the given url
+*/
 func parseCoach(url string) (int, error) {
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil

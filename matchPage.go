@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+/*
+Get the two teams in a match
+*/
 func getTeamsId(d *goquery.Document) ([2]int, error) {
 	var ids [2]int
 
@@ -36,6 +39,10 @@ func getTeamsId(d *goquery.Document) ([2]int, error) {
 	return ids, nil
 }
 
+
+/*
+Get the score id for this match
+*/
 func getScoreId(d *goquery.Document) (int, error) {
 	score := d.Selection.Find("h1 .bidi").Text()
 
@@ -65,6 +72,9 @@ func getScoreId(d *goquery.Document) (int, error) {
 	return scoreId, nil
 }
 
+/*
+Get the date for this match
+*/
 func getDate(d *goquery.Document) (int, error) {
 	date := 0
 	found := false
@@ -99,6 +109,9 @@ func getDate(d *goquery.Document) (int, error) {
 	return date, nil
 }
 
+/*
+Get the referee for this match
+*/
 func getReferee(d *goquery.Document) (int, error) {
 	refereeUrl, ok := d.Selection.Find(".referee").Attr("href")
 	if !ok {
@@ -119,6 +132,10 @@ type Player struct {
 	Shirtnumber int
 }
 
+
+/*
+Get the players for this match
+*/
 func getPlayers(d *goquery.Document) []Player {
 	players := []Player{}
 
@@ -201,6 +218,10 @@ func getPlayers(d *goquery.Document) []Player {
 
 
 
+/*
+Parse the cards in the match,
+and adds them to the database
+*/
 func parseCards(d *goquery.Document, matchId int) {
 	
 	
@@ -278,6 +299,10 @@ type Coach struct {
 	Team int
 }
 
+
+/*
+Get the coaches for this match
+*/
 func getCoaches(d *goquery.Document) []Coach {
 	coaches := []Coach{}
 
@@ -312,6 +337,10 @@ type Goal struct {
 }
 
 
+/*
+Parse the goals for this match,
+and adds them to the database
+*/
 func parseGoals(d *goquery.Document, matchId int) {
 	
 	d.Find(".block_match_goals-wrapper .event").EachWithBreak(func(i int, s *goquery.Selection) bool {
@@ -368,6 +397,10 @@ func elemInArray(array []string, needle string) bool {
 	return false
 }
 
+
+/*
+Parse the match with the given url
+*/
 func parseMatch(url string, competitionId, seasonId int, finalType string) {
 	if _, ok := getUrlFromCache(url); ok {
 		return

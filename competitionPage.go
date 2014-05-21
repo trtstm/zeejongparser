@@ -6,6 +6,10 @@ import (
 	"sync"
 )
 
+
+/*
+Get all the season from the competition's archive page
+*/
 func getSeasons(d *goquery.Document) map[string]string {
 	seasons := map[string]string{}
 
@@ -24,6 +28,9 @@ func getSeasons(d *goquery.Document) map[string]string {
 	return seasons
 }
 
+/*
+Parse the competition with the given url
+*/
 func parseCompetition(url, name string) {
 	if _, ok := getUrlFromCache(url); ok {
 		return

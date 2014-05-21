@@ -284,20 +284,20 @@ func getCoaches(d *goquery.Document) []Coach {
 	cols := []string{".left", ".right"}
 
 	for _, col := range cols {
-		tmp := d.Selection.Find(".block_match_lineups " + col + " tbody").Find("tr a")
-		coachUrl, ok := tmp.Eq(-1).Attr("href")
-		if !ok {
-			log.Println("Could not find coach url for match ")
-			continue
+		tmp := d.Selection.Find(".block_match_lineups " + col + " tbody").Find("tr strong")
+		if strings.Trim(tmp.Text(), " ") == "Coach:" {
+			aTag := tmp.Next()
+			if url, ok := aTag.Attr("href"); ok {
+				team := 0
+				if col == ".right" {
+					team = 1
+				}
+
+				c := Coach{Url: url, Team: team}
+				coaches = append(coaches, c)
+			}
 		}
 
-		team := 0
-		if col == ".right" {
-			team = 1
-		}
-
-		c := Coach{Url: coachUrl, Team: team}
-		coaches = append(coaches, c)
 	}
 
 	return coaches

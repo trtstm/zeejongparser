@@ -166,6 +166,10 @@ var db = struct {
 	Urls: map[string]int{},
 }
 
+
+/*
+Write the database to a file
+*/
 func writeDb(file string) error {
 	json, err := json.MarshalIndent(db, "", "    ") 
 	if err != nil {
@@ -175,6 +179,11 @@ func writeDb(file string) error {
 	return ioutil.WriteFile(file, json, 0777)
 }
 
+
+/*
+Retrieve the database size
+Returns a struct containing the number of each items
+*/
 func getDbSize() map[string]int {
 
 	db.dbLock.Lock()
@@ -198,6 +207,10 @@ func getDbSize() map[string]int {
 	}
 }
 
+
+/*
+Fetch an url from the cache
+*/
 func getUrlFromCache(url string) (int, bool) {
 	db.dbLock.RLock()
 	defer db.dbLock.RUnlock()
@@ -206,11 +219,19 @@ func getUrlFromCache(url string) (int, bool) {
 	return id, ok
 }
 
-// Should be called from a thread safe caller.
+
+/*
+Save an url int the cache
+Should be called from a thread safe caller.
+*/
 func addUrlToCache(url string, id int) {
 	db.Urls[url] = id
 }
 
+
+/*
+Add a player record to the database
+*/
 func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weight int, position, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -236,6 +257,10 @@ func addPlayer(firstname, lastname string, countryId, dateOfBirth, height, weigh
 	return id
 }
 
+
+/*
+Add a referee record to the database
+*/
 func addReferee(firstname, lastname string, countryId int, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -259,6 +284,10 @@ func addReferee(firstname, lastname string, countryId int, url string) int {
 	return id
 }
 
+
+/*
+Add a coach record to the database
+*/
 func addCoach(firstname, lastname string, countryId int, url string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -280,6 +309,10 @@ func addCoach(firstname, lastname string, countryId int, url string) int {
 	return id
 }
 
+
+/*
+Add a country record to the database
+*/
 func addCountry(name string) int {
 	db.dbLock.Lock()
 	defer db.dbLock.Unlock()
@@ -301,6 +334,10 @@ func addCountry(name string) int {
 	return id
 }
 
+
+/*
+Add a match record to the database
+*/
 func addMatch(teamA, teamB, season, referee, date, score int, url string, finalType string) int {
 	
 	db.dbLock.Lock()
@@ -326,6 +363,10 @@ func addMatch(teamA, teamB, season, referee, date, score int, url string, finalT
 	return id
 }
 
+
+/*
+Add a score record to the database
+*/
 func addScore(teamA, teamB int) int {
 	
 	db.dbLock.Lock()
@@ -350,6 +391,10 @@ func addScore(teamA, teamB int) int {
 	return id
 }
 
+
+/*
+Add a playsmatchinteam record to the database
+*/
 func addPlaysMatchInTeam(playerId, number, teamId, matchId int) int {
 	
 	db.dbLock.Lock()
@@ -375,6 +420,10 @@ func addPlaysMatchInTeam(playerId, number, teamId, matchId int) int {
 	return id
 }
 
+
+/*
+Add a playsIn record to the database
+*/
 func addPlaysIn(teamId, playerId int) int {
 	
 	db.dbLock.Lock()
@@ -399,6 +448,10 @@ func addPlaysIn(teamId, playerId int) int {
 	return id
 }
 
+
+/*
+Add a coacheses record to the database
+*/
 func addCoacheses(coachId, teamId, matchId int) int {
 	
 	db.dbLock.Lock()
@@ -423,6 +476,10 @@ func addCoacheses(coachId, teamId, matchId int) int {
 	return id
 }
 
+
+/*
+Add a team record to the database
+*/
 func addTeam(name string, countryId int, url string) int {
 	
 	db.dbLock.Lock()
@@ -446,6 +503,10 @@ func addTeam(name string, countryId int, url string) int {
 	return id
 }
 
+
+/*
+Add a season record to the database
+*/
 func addSeason(name string, competitionId int, url string) int {
 	
 	db.dbLock.Lock()
@@ -469,6 +530,10 @@ func addSeason(name string, competitionId int, url string) int {
 	return id
 }
 
+
+/*
+Add a competition record to the database
+*/
 func addCompetition(name string, url string) int {
 	
 	db.dbLock.Lock()
@@ -493,6 +558,9 @@ func addCompetition(name string, url string) int {
 }
 
 
+/*
+Add a goal record to the database
+*/
 func addGoal(playerId, matchId, time int) int {
 	
 	db.dbLock.Lock()
@@ -518,7 +586,9 @@ func addGoal(playerId, matchId, time int) int {
 }
 
 
-
+/*
+Add a card record to the database
+*/
 func addCard(playerId, matchId, time, cardType int) int {
 
 	db.dbLock.Lock()
@@ -544,9 +614,9 @@ func addCard(playerId, matchId, time, cardType int) int {
 }
 
 
-
-
-
+/*
+Hash a set of parameters
+*/
 func getHash(params ...interface{}) string {
 	encoding := ""
 	for _, param := range params {

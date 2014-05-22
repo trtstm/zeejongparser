@@ -17,6 +17,10 @@ func removeNonAlpha(r rune) bool {
 }
 
 
+/*
+Parse a data of the format `2 January 2006`
+Returns the unix time stamp
+*/
 func parseDate(date string) (int, error) {
 
 	datetime, err := time.Parse("2 January 2006", date)
@@ -27,6 +31,10 @@ func parseDate(date string) (int, error) {
 	
 }
 
+
+/*
+Parse the player with the given url
+*/
 func parsePlayer(url string) (int, error) {
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil

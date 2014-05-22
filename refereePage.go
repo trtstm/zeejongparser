@@ -12,6 +12,10 @@ var refereeCache = struct {
 	lookup: map[string]int{},
 }
 
+
+/*
+Parse the player with the given url
+*/
 func parseReferee(url string) (int, error) {
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil

@@ -10,6 +10,10 @@ import (
 var counter = map[string]bool{}
 var counterLock = sync.RWMutex{}
 
+
+/*
+Parse the team with the given url
+*/
 func parseTeam(url string) (int, error) {
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil

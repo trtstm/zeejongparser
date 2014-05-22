@@ -118,6 +118,10 @@ func getReferee(d *goquery.Document) (int, error) {
 		return 0, errors.New("could not find referee for match")
 	}
 
+	if !strings.HasPrefix(refereeUrl, "/referees/") {
+		return 0, errors.New("could not find referee for match")
+	}
+
 
 	refereeId, err := parseReferee(BASE + refereeUrl)
 	if err != nil {
@@ -164,6 +168,10 @@ func getPlayers(d *goquery.Document) []Player {
 				return
 			}
 
+			if !strings.HasPrefix(playerUrl, "/players/") {
+				return
+			}
+
 
 			team := 0
 			if col == ".right" {
@@ -200,6 +208,9 @@ func getPlayers(d *goquery.Document) []Player {
 				return
 			}
 
+			if !strings.HasPrefix(playerUrl, "/players/") {
+				return
+			}
 	
 			team := 0
 			if col == ".right" {
@@ -238,6 +249,11 @@ func parseCards(d *goquery.Document, matchId int) {
 			if !ok {
 				return
 			}
+
+			if !strings.HasPrefix(playerUrl, "/players/") {
+				return
+			}
+
 			playerId, err := parsePlayer(BASE + playerUrl)
 			if err != nil {
 				return
@@ -321,6 +337,10 @@ func getCoaches(d *goquery.Document) []Coach {
 					team = 1
 				}
 
+				if !strings.HasPrefix(url, "/coaches/") {
+					continue
+				}	
+
 				c := Coach{Url: url, Team: team}
 				coaches = append(coaches, c)
 			}
@@ -361,24 +381,33 @@ func parseGoals(d *goquery.Document, matchId int) {
 			num, err := strconv.ParseInt(item, 10, 16)
 			
 			if err != nil {
-				return false
+				return true
 			}
 			
 			time += num
 		}
 		
 		goal.Time = time;
-
-		
-		
+	
 		
 		//Find the player url for the goal
-		//TODO handle error
-		goal.PlayerUrl,_ = s.Find("a").Attr("href")
+		var ok bool
+		goal.PlayerUrl, ok = s.Find("a").Attr("href")
+		if !ok {
+			return true
+		}
+
+		if !strings.HasPrefix(goal.PlayerUrl, "/players/") {
+			return true
+		}
+
 		goal.PlayerUrl = BASE + goal.PlayerUrl
 		
-		playerId, _ := parsePlayer(goal.PlayerUrl)
-		
+		playerId, err := parsePlayer(goal.PlayerUrl)
+		if err != nil {
+			log.Println(err)
+			return true
+		}
 		
 		
 		//TODO add the goal to the database

@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"sync"
+	"errors"
+	"strings"
 )
 
 var refereeCache = struct {
@@ -17,6 +19,10 @@ var refereeCache = struct {
 Parse the player with the given url
 */
 func parseReferee(url string) (int, error) {
+	if !strings.Contains(url, "/referees/") {
+		return 0, errors.New("Referee has none referee url")
+	}
+
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil
 	}

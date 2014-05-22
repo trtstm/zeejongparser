@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"errors"
 )
 
 func removeNonAlpha(r rune) bool {
@@ -36,6 +37,10 @@ func parseDate(date string) (int, error) {
 Parse the player with the given url
 */
 func parsePlayer(url string) (int, error) {
+	if !strings.Contains(url, "/players/") {
+		return 0, errors.New("Player has none player url")
+	}
+
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil
 	}

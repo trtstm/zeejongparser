@@ -118,10 +118,6 @@ func getReferee(d *goquery.Document) (int, error) {
 		return 0, errors.New("could not find referee for match")
 	}
 
-	if !strings.HasPrefix(refereeUrl, "/referees/") {
-		log.Printf("Referee has none referee url: %s", refereeUrl)
-		return 0, errors.New("could not find referee for match")
-	}
 
 	refereeId, err := parseReferee(BASE + refereeUrl)
 	if err != nil {
@@ -168,9 +164,6 @@ func getPlayers(d *goquery.Document) []Player {
 				return
 			}
 
-			if !strings.HasPrefix(playerUrl, "/players/") {
-				return
-			}
 
 			team := 0
 			if col == ".right" {
@@ -207,9 +200,6 @@ func getPlayers(d *goquery.Document) []Player {
 				return
 			}
 
-			if !strings.HasPrefix(playerUrl, "/players/") {
-				return
-			}
 	
 			team := 0
 			if col == ".right" {
@@ -329,11 +319,6 @@ func getCoaches(d *goquery.Document) []Coach {
 				team := 0
 				if col == ".right" {
 					team = 1
-				}
-
-				if !strings.HasPrefix(url, "/coaches/") {
-					log.Printf("Coach has none coach url: %s", url)
-					continue
 				}
 
 				c := Coach{Url: url, Team: team}
@@ -481,6 +466,7 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 	}
 
 	for _, c := range getCoaches(d) {
+		//log.Println(c.Url)
 		coachId, err := parseCoach(BASE + c.Url)
 		
 		if err != nil {

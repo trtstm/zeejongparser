@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"strings"
+	"errors"
 )
 
 
@@ -9,6 +11,10 @@ import (
 Parse the coach with the given url
 */
 func parseCoach(url string) (int, error) {
+	if !strings.Contains(url, "/coaches/") {
+		return 0, errors.New("Coach has none coach url")
+	}
+
 	if id, ok := getUrlFromCache(url); ok {
 		return id, nil
 	}

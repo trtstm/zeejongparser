@@ -419,17 +419,6 @@ func parseGoals(d *goquery.Document, matchId int) {
 	
 }
 
-func elemInArray(array []string, needle string) bool {
-	for _, elem := range array {
-		if needle == elem {
-			return true
-		}
-	}
-
-	return false
-}
-
-
 /*
 Parse the match with the given url
 */
@@ -438,20 +427,7 @@ func parseMatch(url string, competitionId, seasonId int, finalType string) {
 		return
 	}
 
-	finals := []string{"Final", "Finals", "Final replay", "Play-offs - Final", "Conference - Finals", "Europe League Play-offs - Finals", "Play Offs UEFA Final",
-				 	"Semi-finals", "Play-offs - Semi-finals", "Conference - Semi-finals", "Europa League Play-offs - Semi-finals",
-					"3rd Place Final",
-					"Quarter-finals", "Quarter-finals Replays",
-					"8th Finals",
-					"16th Finals",
-					"32th Finals",
-					""}
-
 	finalType = strings.TrimSpace(finalType)
-	if !elemInArray(finals, finalType) {
-		log.Printf("Found unknown final type: %s", finalType)
-		finalType = "";
-	}
 
 	d, err := getDocument(url)
 	if err != nil {

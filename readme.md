@@ -4,7 +4,7 @@ ZeeJong Parser
 About
 -----
 
-*ZeeJong Parser* is a tool, written in [*GO*](http://golang.org), which collects and builds a database containing an archive of soccer information. This tool is written for the *ZeeJong* web app.
+*ZeeJong Parser* is a tool, written in [*GO*](http://golang.org), which collects and builds a database containing an archive of soccer information. This tool is written for the [*ZeeJong*](https://github.com/DenBeke/ZeeJong) web app.
 
 
 Installing & Running
@@ -32,6 +32,7 @@ Images are saved in the `images` folders.
 The names of those images correspond to the id of the 'owner'. (e.g. the player with id `512`, will have an image named `Player-512.png`)
 
 While parsing, you can see the stats on a webpage. Open your browser and go to `http://localhost:8080`. This page will you show you the progress of the parser.
+![demo](/demo.png)
 
 The output of the parser is a JSON file, containing the whole database.
 
